@@ -4,7 +4,7 @@ def get_parser_main_model():
     parser = argparse.ArgumentParser()
     # basic parameters training related
     parser.add_argument('--model_name', type=str, default='main_model', choices=['main_model', 'neural_raster'], help='current model_name')
-    parser.add_argument("--language", type=str, default='eng', choices=['eng', 'chn'])
+    parser.add_argument("--lang", type=str, default='eng', choices=['eng', 'chn'])
     parser.add_argument('--bottleneck_bits', type=int, default=512, help='latent code number of bottleneck bits')
     parser.add_argument('--char_num', type=int, default=52, help='number of glyphs, original is 52')
     parser.add_argument('--ref_nshot', type=int, default=4, help='reference number')    
@@ -29,6 +29,7 @@ def get_parser_main_model():
 
     parser.add_argument('--mode', type=str, default='train', choices=['train', 'val', 'test'])
     parser.add_argument('--multi_gpu', type=bool, default=False)
+    parser.add_argument('--exp_path', type=str, default='.')
     parser.add_argument('--name_exp', type=str, default='dvf')
     parser.add_argument('--data_root', type=str, default='./data/vecfont_dataset/')
     parser.add_argument('--freq_ckpt', type=int, default=50, help='save checkpoint frequency of epoch')
