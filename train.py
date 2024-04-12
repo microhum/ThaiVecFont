@@ -13,6 +13,7 @@ from models import util_funcs
 from models.model_main import ModelMain
 from options import get_parser_main_model
 from data_utils.svg_utils import render
+from lion_pytorch import Lion
 
 def setup_seed(seed):
     torch.manual_seed(seed)
@@ -44,7 +45,7 @@ def train_main_model(opts):
     
     model_main.cuda()
 
-    optimizer = Adam(parameters_all, lr=opts.lr, betas=(opts.beta1, opts.beta2), eps=opts.eps, weight_decay=opts.weight_decay)
+    optimizer = Lion(parameters_all, lr=opts.lr, betas=(opts.beta1, opts.beta2), weight_decay=opts.weight_decay)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.997)
     
     if opts.tboard:
