@@ -13,6 +13,7 @@ from models import util_funcs
 from models.model_main import ModelMain
 from options import get_parser_main_model
 from data_utils.svg_utils import render
+from time import time
 from lion_pytorch import Lion
 
 def setup_seed(seed):
@@ -45,13 +46,14 @@ def train_main_model(opts):
     
     model_main.cuda()
 
-    optimizer = Lion(parameters_all, lr=opts.lr, betas=(opts.beta1, opts.beta2), weight_decay=opts.weight_decay)
+    optimizer = AdamW(parameters_all, lr=opts.lr, betas=(opts.beta1, opts.beta2), weight_decay=opts.weight_decay)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.997)
     
     if opts.tboard:
         writer = SummaryWriter(dir_log)
 
     for epoch in range(opts.init_epoch, opts.n_epochs):
+        t0 = time()
         for idx, data in enumerate(train_loader):
             for key in data: data[key] = data[key].cuda()
             ret_dict, loss_dict = model_main(data)
@@ -59,6 +61,7 @@ def train_main_model(opts):
             loss = opts.loss_w_l1 * loss_dict['img']['l1'] + opts.loss_w_pt_c * loss_dict['img']['vggpt'] + opts.kl_beta * loss_dict['kl'] \
                     + loss_dict['svg']['total'] + loss_dict['svg_para']['total']
             loss = loss.sum()
+            
 
             loss_img_items = ['l1', 'vggpt']
             loss_svg_items = ['total', 'cmd', 'args', 'aux', 'smt']
@@ -76,6 +79,7 @@ def train_main_model(opts):
             optimizer.step()
             batches_done = epoch * len(train_loader) + idx + 1 
             message = (
+                f"Time: {'{} seconds'.format(time.time() - t0)}, "
                 f"Epoch: {epoch}/{opts.n_epochs}, Batch: {idx}/{len(train_loader)}, "
                 f"Loss: {loss.item():.6f}, "
                 f"img_l1_loss: {opts.loss_w_l1 * loss_dict['img']['l1'].item():.6f}, "
