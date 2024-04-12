@@ -35,14 +35,16 @@ def train_main_model(opts):
 
     model_main = ModelMain(opts)
 
+    parameters_all = [{"params": model_main.img_encoder.parameters()}, {"params": model_main.img_decoder.parameters()},
+                            {"params": model_main.modality_fusion.parameters()}, {"params": model_main.transformer_main.parameters()},
+                            {"params": model_main.transformer_seqdec.parameters()}]
+    
     if torch.cuda.is_available() and opts.multi_gpu:
         model_main = torch.nn.DataParallel(model_main)
     
     model_main.cuda()
     
-    parameters_all = [{"params": model_main.img_encoder.parameters()}, {"params": model_main.img_decoder.parameters()},
-                        {"params": model_main.modality_fusion.parameters()}, {"params": model_main.transformer_main.parameters()},
-                        {"params": model_main.transformer_seqdec.parameters()}]
+    
     
     optimizer = Adam(parameters_all, lr=opts.lr, betas=(opts.beta1, opts.beta2), eps=opts.eps, weight_decay=opts.weight_decay)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.997)
