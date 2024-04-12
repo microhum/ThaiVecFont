@@ -43,9 +43,7 @@ def train_main_model(opts):
         model_main = torch.nn.DataParallel(model_main)
     
     model_main.cuda()
-    
-    
-    
+
     optimizer = Adam(parameters_all, lr=opts.lr, betas=(opts.beta1, opts.beta2), eps=opts.eps, weight_decay=opts.weight_decay)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.997)
     
@@ -62,7 +60,10 @@ def train_main_model(opts):
 
             # perform optimization
             optimizer.zero_grad()
-            loss.backward()       
+            if torch.cuda.is_available() and opts.multi_gpu:
+                loss.sum().backward()
+            else: 
+                loss.backward()
             optimizer.step()
             batches_done = epoch * len(train_loader) + idx + 1 
             message = (
