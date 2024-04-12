@@ -136,7 +136,7 @@ class Attention(nn.Module):
 
         if exists(mask): 
             mask = repeat(mask, 'b j k -> (b h) k j', h = h)
-            sim.masked_fill(mask == 0, -1e9)
+            sim.masked_fill_(mask == 0, -1e9)
 
         # attention, what we cannot get enough of
         attn = sim.softmax(dim = -1)
@@ -614,13 +614,15 @@ def attention(query, key, value, mask=None, trg_tri_mask=None,dropout=None, posr
 
     if mask is not None:
         try:
-            scores = scores.masked_fill(mask == 0, -1e9) # note mask: b,1,501,501  scores: b, head, 501,501
-        except:
+            scores = scores.masked_fill_(mask == 0, -1e9) # note mask: b,1,501,501  scores: b, head, 501,501
+        except Exception as e:
+            print(scores)
+            print("Error: ",e)
+            import ipdb; ipdb.set_trace()
             # pdb.set_trace()
-            pass
 
     if trg_tri_mask is not None:
-        scores = scores.masked_fill(trg_tri_mask == 0, -1e9) 
+        scores = scores.masked_fill_(trg_tri_mask == 0, -1e9) 
     
     p_attn = F.softmax(scores, dim=-1)
 
