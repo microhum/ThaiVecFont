@@ -616,7 +616,8 @@ def attention(query, key, value, mask=None, trg_tri_mask=None,dropout=None, posr
         try:
             scores = scores.masked_fill(mask == 0, -1e9) # note mask: b,1,501,501  scores: b, head, 501,501
         except:
-            pdb.set_trace()
+            # pdb.set_trace()
+            pass
 
     if trg_tri_mask is not None:
         scores = scores.masked_fill(trg_tri_mask == 0, -1e9) 
