@@ -32,8 +32,8 @@ def train_main_model(opts):
     logfile_train = open(os.path.join(dir_log, "train_loss_log.txt"), 'w')
     logfile_val = open(os.path.join(dir_log, "val_loss_log.txt"), 'w')
 
-    train_loader = get_loader(opts.data_root, opts.img_size, opts.lang, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size, opts.mode)
-    val_loader = get_loader(opts.data_root, opts.img_size, opts.lang, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size_val, 'test')
+    train_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size, opts.mode)
+    val_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size_val, 'test')
 
     model_main = ModelMain(opts)
 
