@@ -58,6 +58,17 @@ def train_main_model(opts):
             loss = opts.loss_w_l1 * loss_dict['img']['l1'] + opts.loss_w_pt_c * loss_dict['img']['vggpt'] + opts.kl_beta * loss_dict['kl'] \
                     + loss_dict['svg']['total'] + loss_dict['svg_para']['total']
             loss = loss.sum()
+
+            loss_img_items = ['l1', 'vggpt']
+            loss_svg_items = ['total', 'cmd', 'args', 'aux', 'smt']
+            for item in loss_img_items:
+                loss_dict['img'][item] = loss_dict['img'][item].sum()
+            for item in loss_svg_items:
+                loss_dict['svg'][item] = loss_dict['svg'][item].sum()
+            for item in loss_svg_items:
+                loss_dict['svg_para'][item] = loss_dict['svg_para'][item].sum()
+            loss_dict['kl'] = loss_dict['kl'].sum()
+    
             # perform optimization
             optimizer.zero_grad()
             loss.backward()
