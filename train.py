@@ -14,7 +14,7 @@ from models.model_main import ModelMain
 from options import get_parser_main_model
 from data_utils.svg_utils import render
 from time import time
-from lion_pytorch import Lion
+# from lion_pytorch import Lion
 
 def setup_seed(seed):
     torch.manual_seed(seed)
@@ -25,15 +25,15 @@ def setup_seed(seed):
 
 def train_main_model(opts):
     setup_seed(1111)
-    dir_exp = os.path.join("./experiments", opts.name_exp)
+    dir_exp = os.path.join(f"{opts.exp_path}", "experiments", opts.name_exp)
     dir_sample = os.path.join(dir_exp, "samples")
     dir_ckpt = os.path.join(dir_exp, "checkpoints")
     dir_log = os.path.join(dir_exp, "logs")
     logfile_train = open(os.path.join(dir_log, "train_loss_log.txt"), 'w')
     logfile_val = open(os.path.join(dir_log, "val_loss_log.txt"), 'w')
 
-    train_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size, opts.mode)
-    val_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size_val, 'test')
+    train_loader = get_loader(opts.data_root, opts.img_size, opts.lang, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size, opts.mode)
+    val_loader = get_loader(opts.data_root, opts.img_size, opts.lang, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size_val, 'test')
 
     model_main = ModelMain(opts)
 
@@ -183,10 +183,10 @@ def main():
     
     opts = get_parser_main_model().parse_args()
     opts.name_exp = opts.name_exp + '_' + opts.model_name
-    os.makedirs("./experiments", exist_ok=True)
+    os.makedirs(f"{opts.exp_path}/experiments", exist_ok=True)
     debug = True
     # Create directories
-    experiment_dir = os.path.join("./experiments", opts.name_exp)
+    experiment_dir = os.path.join(f"{opts.exp_path}","experiments", opts.name_exp)
     backup_code(opts.name_exp)
     os.makedirs(experiment_dir, exist_ok=debug)  # False to prevent multiple train run by mistake
     os.makedirs(os.path.join(experiment_dir, "samples"), exist_ok=True)
