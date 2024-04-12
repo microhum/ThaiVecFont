@@ -57,13 +57,10 @@ def train_main_model(opts):
 
             loss = opts.loss_w_l1 * loss_dict['img']['l1'] + opts.loss_w_pt_c * loss_dict['img']['vggpt'] + opts.kl_beta * loss_dict['kl'] \
                     + loss_dict['svg']['total'] + loss_dict['svg_para']['total']
-
+            loss = loss.sum()
             # perform optimization
             optimizer.zero_grad()
-            if torch.cuda.is_available() and opts.multi_gpu:
-                loss.sum().backward()
-            else: 
-                loss.backward()
+            loss.backward()
             optimizer.step()
             batches_done = epoch * len(train_loader) + idx + 1 
             message = (
