@@ -79,7 +79,7 @@ def train_main_model(opts):
             optimizer.step()
             batches_done = epoch * len(train_loader) + idx + 1 
             message = (
-                f"Time: {'{} seconds'.format(time.time() - t0)}, "
+                f"Time: {'{} seconds'.format(time() - t0)}, "
                 f"Epoch: {epoch}/{opts.n_epochs}, Batch: {idx}/{len(train_loader)}, "
                 f"Loss: {loss.item():.6f}, "
                 f"img_l1_loss: {opts.loss_w_l1 * loss_dict['img']['l1'].item():.6f}, "
