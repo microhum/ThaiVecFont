@@ -614,12 +614,12 @@ def attention(query, key, value, mask=None, trg_tri_mask=None,dropout=None, posr
 
     if mask is not None:
         try:
+            print("Shape Before: ",scores.shape)
             scores = scores.masked_fill_(mask == 0, -1e9) # note mask: b,1,501,501  scores: b, head, 501,501
         except Exception as e:
             print("Shape: ",scores.shape)
             print("Error: ",e)
             import ipdb; ipdb.set_trace()
-            # pdb.set_trace()
 
     if trg_tri_mask is not None:
         scores = scores.masked_fill_(trg_tri_mask == 0, -1e9) 
