@@ -4,7 +4,7 @@ def get_parser_main_model():
     parser = argparse.ArgumentParser()
     # basic parameters training related
     parser.add_argument('--model_name', type=str, default='main_model', choices=['main_model', 'neural_raster'], help='current model_name')
-    parser.add_argument("--language", type=str, default='eng', choices=['eng', 'chn'])
+    parser.add_argument("--language", type=str, default='eng', choices=['eng', 'chn', 'tha'])
     parser.add_argument('--bottleneck_bits', type=int, default=512, help='latent code number of bottleneck bits')
     parser.add_argument('--char_num', type=int, default=52, help='number of glyphs, original is 52')
     parser.add_argument('--ref_nshot', type=int, default=4, help='reference number')    

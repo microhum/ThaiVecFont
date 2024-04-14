@@ -135,7 +135,7 @@ def write_glyph_imgs_mp(opts):
 
 def main():
     parser = argparse.ArgumentParser(description="Write glyph images")
-    parser.add_argument("--language", type=str, default='eng', choices=['eng', 'chn'])
+    parser.add_argument("--language", type=str, default='eng', choices=['eng', 'chn', 'tha'])
     parser.add_argument("--ttf_path", type=str, default='../data/font_ttfs')
     parser.add_argument('--sfd_path', type=str, default='../data/font_sfds')
     parser.add_argument('--img_size', type=int, default=64)

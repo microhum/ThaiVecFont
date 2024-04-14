@@ -92,7 +92,7 @@ def apply_aug(opts):
 
 def main():
     parser = argparse.ArgumentParser(description="relax representation")
-    parser.add_argument("--language", type=str, default='eng', choices=['eng', 'chn'])
+    parser.add_argument("--language", type=str, default='eng', choices=['eng', 'chn', 'tha'])
     parser.add_argument("--output_path", type=str, default='../data/vecfont_dataset_/', help="Path to write the database to")
     parser.add_argument('--max_len', type=int, default=71, help="by default, 51 for english and 71 for chinese")
     parser.add_argument('--n_aug', type=int, default=5, help="for each font, augment it for n_aug times")
