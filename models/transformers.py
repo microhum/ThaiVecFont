@@ -2,7 +2,7 @@ from math import pi, log
 from functools import wraps
 from multiprocessing import context
 from textwrap import indent
-import util_funcs
+import models.util_funcs as util_funcs
 import math, copy
 import numpy as np
 import torch
