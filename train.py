@@ -37,16 +37,18 @@ def train_main_model(opts):
 
     model_main = ModelMain(opts)
 
-    parameters_all = [{"params": model_main.img_encoder.parameters()}, {"params": model_main.img_decoder.parameters()},
-                            {"params": model_main.modality_fusion.parameters()}, {"params": model_main.transformer_main.parameters()},
-                            {"params": model_main.transformer_seqdec.parameters()}]
+    
     
     if torch.cuda.is_available() and opts.multi_gpu:
         model_main = torch.nn.DataParallel(model_main)
     
     model_main.cuda()
 
-    optimizer = AdamW(parameters_all, lr=opts.lr, betas=(opts.beta1, opts.beta2), weight_decay=opts.weight_decay)
+    parameters_all = [{"params": model_main.img_encoder.parameters()}, {"params": model_main.img_decoder.parameters()},
+                            {"params": model_main.modality_fusion.parameters()}, {"params": model_main.transformer_main.parameters()},
+                            {"params": model_main.transformer_seqdec.parameters()}]
+
+    optimizer = AdamW(parameters_all, lr=opts.lr, betas=(opts.beta1, opts.beta2), eps=opts.eps, weight_decay=opts.weight_decay)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.997)
     
     if opts.tboard:
@@ -60,18 +62,18 @@ def train_main_model(opts):
 
             loss = opts.loss_w_l1 * loss_dict['img']['l1'] + opts.loss_w_pt_c * loss_dict['img']['vggpt'] + opts.kl_beta * loss_dict['kl'] \
                     + loss_dict['svg']['total'] + loss_dict['svg_para']['total']
-            loss = loss.sum()
+            # loss = loss.sum()
             
 
-            loss_img_items = ['l1', 'vggpt']
-            loss_svg_items = ['total', 'cmd', 'args', 'aux', 'smt']
-            for item in loss_img_items:
-                loss_dict['img'][item] = loss_dict['img'][item].sum()
-            for item in loss_svg_items:
-                loss_dict['svg'][item] = loss_dict['svg'][item].sum()
-            for item in loss_svg_items:
-                loss_dict['svg_para'][item] = loss_dict['svg_para'][item].sum()
-            loss_dict['kl'] = loss_dict['kl'].sum()
+            # loss_img_items = ['l1', 'vggpt']
+            # loss_svg_items = ['total', 'cmd', 'args', 'aux', 'smt']
+            # for item in loss_img_items:
+            #     loss_dict['img'][item] = loss_dict['img'][item].sum()
+            # for item in loss_svg_items:
+            #     loss_dict['svg'][item] = loss_dict['svg'][item].sum()
+            # for item in loss_svg_items:
+            #     loss_dict['svg_para'][item] = loss_dict['svg_para'][item].sum()
+            # loss_dict['kl'] = loss_dict['kl'].sum()
     
             # perform optimization
             optimizer.zero_grad()

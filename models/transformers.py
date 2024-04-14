@@ -2,7 +2,7 @@ from math import pi, log
 from functools import wraps
 from multiprocessing import context
 from textwrap import indent
-import models.util_funcs as util_funcs
+import util_funcs
 import math, copy
 import numpy as np
 import torch
@@ -618,7 +618,7 @@ def attention(query, key, value, mask=None, trg_tri_mask=None,dropout=None, posr
         except Exception as e:
             print("Shape: ",scores.shape)
             print("Error: ",e)
-            import ipdb; ipdb.set_trace()
+            import pdb; pdb.set_trace()
 
     if trg_tri_mask is not None:
         scores = scores.masked_fill_(trg_tri_mask == 0, -1e9) 
