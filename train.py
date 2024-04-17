@@ -24,7 +24,7 @@ def setup_seed(seed):
     torch.backends.cudnn.deterministic = True
 
 def train_main_model(opts):
-    setup_seed(1111)
+    setup_seed(opts.seed)
     dir_exp = os.path.join(f"{opts.exp_path}", "experiments", opts.name_exp)
     dir_sample = os.path.join(dir_exp, "samples")
     dir_ckpt = os.path.join(dir_exp, "checkpoints")
@@ -37,8 +37,6 @@ def train_main_model(opts):
 
     model_main = ModelMain(opts)
 
-    
-    
     if torch.cuda.is_available() and opts.multi_gpu:
         model_main = torch.nn.DataParallel(model_main)
     
@@ -164,8 +162,8 @@ def train_main_model(opts):
     logfile_train.close()
     logfile_val.close()
 
-def backup_code(name_exp):
-    os.makedirs(os.path.join('experiments', name_exp, 'code'), exist_ok=True)
+def backup_code(name_exp, exp_path):
+    os.makedirs(os.path.join(exp_path,'experiments', name_exp, 'code'), exist_ok=True)
     shutil.copy('models/transformers.py', os.path.join('experiments', name_exp, 'code', 'transformers.py') )
     shutil.copy('models/model_main.py', os.path.join('experiments', name_exp, 'code', 'model_main.py'))
     shutil.copy('models/image_encoder.py', os.path.join('experiments', name_exp, 'code', 'image_encoder.py'))
@@ -189,7 +187,7 @@ def main():
     debug = True
     # Create directories
     experiment_dir = os.path.join(f"{opts.exp_path}","experiments", opts.name_exp)
-    backup_code(opts.name_exp)
+    backup_code(opts.name_exp, opts.exp_path)
     os.makedirs(experiment_dir, exist_ok=debug)  # False to prevent multiple train run by mistake
     os.makedirs(os.path.join(experiment_dir, "samples"), exist_ok=True)
     os.makedirs(os.path.join(experiment_dir, "checkpoints"), exist_ok=True)

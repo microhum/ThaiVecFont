@@ -7,6 +7,7 @@ def get_parser_main_model():
     parser.add_argument("--language", type=str, default='eng', choices=['eng', 'chn', 'tha'])
     parser.add_argument('--bottleneck_bits', type=int, default=512, help='latent code number of bottleneck bits')
     parser.add_argument('--char_num', type=int, default=52, help='number of glyphs, original is 52')
+    parser.add_argument('--seed', type=int, default=3712)
     parser.add_argument('--ref_nshot', type=int, default=4, help='reference number')    
     parser.add_argument('--batch_size', type=int, default=64, help='batch size')
     parser.add_argument('--batch_size_val', type=int, default=8, help='batch size when do validation')
@@ -19,6 +20,7 @@ def get_parser_main_model():
     parser.add_argument('--ngf', type=int, default=16, help='the basic num of channel in image encoder and decoder')
     parser.add_argument('--n_aux_pts', type=int, default=6, help='the number of aux pts in bezier curves for additional supervison')
     # experiment related
+    
     parser.add_argument('--random_index', type=str, default='00')
     parser.add_argument('--name_ckpt', type=str, default='600_192921.ckpt')
     parser.add_argument('--init_epoch', type=int, default=0, help='init epoch')
