@@ -164,12 +164,12 @@ def train_main_model(opts):
 
 def backup_code(name_exp, exp_path):
     os.makedirs(os.path.join(exp_path,'experiments', name_exp, 'code'), exist_ok=True)
-    shutil.copy('models/transformers.py', os.path.join('experiments', name_exp, 'code', 'transformers.py') )
-    shutil.copy('models/model_main.py', os.path.join('experiments', name_exp, 'code', 'model_main.py'))
-    shutil.copy('models/image_encoder.py', os.path.join('experiments', name_exp, 'code', 'image_encoder.py'))
-    shutil.copy('models/image_decoder.py', os.path.join('experiments', name_exp, 'code', 'image_decoder.py'))
-    shutil.copy('./train.py', os.path.join('experiments', name_exp, 'code', 'train.py'))
-    shutil.copy('./options.py', os.path.join('experiments', name_exp, 'code', 'options.py'))
+    shutil.copy('models/transformers.py', os.path.join(exp_path,'experiments', name_exp, 'code', 'transformers.py') )
+    shutil.copy('models/model_main.py', os.path.join(exp_path,'experiments', name_exp, 'code', 'model_main.py'))
+    shutil.copy('models/image_encoder.py', os.path.join(exp_path,'experiments', name_exp, 'code', 'image_encoder.py'))
+    shutil.copy('models/image_decoder.py', os.path.join(exp_path,'experiments', name_exp, 'code', 'image_decoder.py'))
+    shutil.copy('./train.py', os.path.join(exp_path,'experiments', name_exp, 'code', 'train.py'))
+    shutil.copy('./options.py', os.path.join(exp_path,'experiments', name_exp, 'code', 'options.py'))
 
 def train(opts):
     if opts.model_name == 'main_model':
