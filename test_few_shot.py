@@ -11,8 +11,10 @@ from data_utils.svg_utils import render
 from models.util_funcs import svg2img, cal_iou
 
 def test_main_model(opts):
-
-    dir_res = os.path.join(f"{opts.exp_path}", "experiments/", opts.name_exp, "results")
+    if opts.dir_res:
+        dir_res = os.path.join(opts.dir_res)
+    else:
+        dir_res = os.path.join(f"{opts.exp_path}", "experiments/", opts.name_exp, "results")
 
     test_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size, 'test')
 

@@ -32,6 +32,7 @@ def get_parser_main_model():
     parser.add_argument('--mode', type=str, default='train', choices=['train', 'val', 'test'])
     parser.add_argument('--multi_gpu', type=bool, default=False)
     parser.add_argument('--exp_path', type=str, default='.')
+    parser.add_argument('--dir_res', type=str, default=None)
     parser.add_argument('--name_exp', type=str, default='dvf')
     parser.add_argument('--data_root', type=str, default='./data/vecfont_dataset/')
     parser.add_argument('--freq_ckpt', type=int, default=50, help='save checkpoint frequency of epoch')
