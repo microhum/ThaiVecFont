@@ -153,7 +153,7 @@ def train_main_model(opts):
 
         scheduler.step()
 
-        if epoch % opts.freq_ckpt == 0 and epoch > opts.threshold_ckpt:
+        if epoch % opts.freq_ckpt == 0 and epoch >= opts.threshold_ckpt:
             if opts.multi_gpu:
                 print(f"Saved {dir_ckpt}/{epoch}_{batches_done}.ckpt")
                 torch.save({'model':model_main.module.state_dict(), 'opt':optimizer.state_dict(), 'n_epoch':epoch, 'n_iter':batches_done}, f'{dir_ckpt}/{epoch}_{batches_done}.ckpt')
