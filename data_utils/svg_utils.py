@@ -42,7 +42,7 @@ CMD_MAPPING = {cmd: i for i, cmd in enumerate(CMDS_LIST)}
 
 FEATURE_DIM = 10
 
-MAX_SEQ_LEN = 50
+MAX_SEQ_LEN = 70
 
 ############################### GENERAL UTILS #################################
 def grouper(iterable, batch_size, fill_value=None):
