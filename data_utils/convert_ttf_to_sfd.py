@@ -43,14 +43,18 @@ def convert_mp(opts):
             for char_id, char in enumerate(charset):
                 char_description = open(os.path.join(target_dir, '{}_{num:0{width}}.txt'.format(font_id, num=char_id, width=charset_lenw)), 'w')
 
-                if opts.language == 'chn':
+                if opts.language in ['chn', 'tha']:
                     char = 'uni' + char.encode("unicode_escape")[2:].decode("utf-8")
                 
                 cur_font.selection.select(char)
                 cur_font.copy()
 
                 new_font_for_char = fontforge.font()
-                char = 'A'
+
+                if opts.language in ['tha']:
+                    char = 'uni' + "ฐ".encode("unicode_escape")[2:].decode("utf-8")
+                else: char = "A"
+
                 new_font_for_char.selection.select(char)
                 new_font_for_char.paste()
                 new_font_for_char.fontname = "{}_".format(font_id) + font_name

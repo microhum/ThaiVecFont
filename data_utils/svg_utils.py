@@ -27,7 +27,7 @@ SVG_PREFIX_BIG = ('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="'
                   'http://www.w3.org/1999/xlink" width="256px" height="256px"'
                   ' style="-ms-transform: rotate(360deg); -webkit-transform:'
                   ' rotate(360deg); transform: rotate(360deg);" '
-                  'preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24">')
+                  'preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 30">')
 PATH_PREFIX_1 = '<path d="'
 PATH_POSFIX_1 = '" fill="currentColor"/>'
 SVG_POSFIX = '</svg>'
@@ -43,6 +43,11 @@ CMD_MAPPING = {cmd: i for i, cmd in enumerate(CMDS_LIST)}
 FEATURE_DIM = 10
 
 MAX_SEQ_LEN = 70
+
+def change_max_seq_len(param):
+    global MAX_SEQ_LEN
+    MAX_SEQ_LEN = param
+    return MAX_SEQ_LEN
 
 ############################### GENERAL UTILS #################################
 def grouper(iterable, batch_size, fill_value=None):
@@ -678,7 +683,7 @@ start = ("""<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www."""
          """w3.org/1999/xlink" width="256px" height="256px" style="-ms-trans"""
          """form: rotate(360deg); -webkit-transform: rotate(360deg); transfo"""
          """rm: rotate(360deg);" preserveAspectRatio="xMidYMid meet" viewBox"""
-         """="0 0 24 24"><path d=\"""")
+         """="0 0 24 30"><path d=\"""")
 end = """\" fill="currentColor"/></svg>"""
 
 COMMAND_RX = re.compile("([MmLlHhVvCcSsQqTtAaZz])")

@@ -87,6 +87,7 @@ def write_glyph_imgs_mp(opts):
                 draw = ImageDraw.Draw(image)
                 try:
                     font_width, font_height = font.getsize(char)
+                    # print(f"Font: {fontname} Width :{font_width}, Height :{font_height}")
                 except:
                     print('cant calculate height and width ' + "%04d"%i + '_' + '{num:0{width}}'.format(num=charid, width=charset_lenw))
                     flag_success = False

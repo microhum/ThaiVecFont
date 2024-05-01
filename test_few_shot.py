@@ -12,7 +12,8 @@ from models.util_funcs import svg2img, cal_iou
 
 def test_main_model(opts):
     if opts.dir_res:
-        dir_res = os.path.join(opts.dir_res)
+        os.mkdir(os.path.join(opts.dir_res, "results"))
+        dir_res = os.path.join(opts.dir_res, "results")
     else:
         dir_res = os.path.join(f"{opts.exp_path}", "experiments/", opts.name_exp, "results")
 
