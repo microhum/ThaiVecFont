@@ -199,6 +199,7 @@ def cal_mean_stddev(opts, output_path):
 def main():
     parser = argparse.ArgumentParser(description="LMDB creation")
     parser.add_argument("--language", type=str, default='eng', choices=['eng', 'chn', 'tha'])
+    parser.add_argument("--data_path", type=str, default='./Font_Dataset', help="Path to Dataset")
     parser.add_argument("--ttf_path", type=str, default='../data/font_ttfs')
     parser.add_argument('--sfd_path', type=str, default='../data/font_sfds')
     parser.add_argument("--output_path", type=str, default='../data/vecfont_dataset_/', help="Path to write the database to")

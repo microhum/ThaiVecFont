@@ -42,7 +42,7 @@ CMD_MAPPING = {cmd: i for i, cmd in enumerate(CMDS_LIST)}
 
 FEATURE_DIM = 10
 
-MAX_SEQ_LEN = 70
+MAX_SEQ_LEN = 120
 
 # Manually Change Max Sequence
 def change_max_seq_len(param):

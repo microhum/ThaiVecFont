@@ -126,6 +126,7 @@ def relax_rep(opts):
 def main():
     parser = argparse.ArgumentParser(description="relax representation")
     parser.add_argument("--language", type=str, default='eng', choices=['eng', 'chn', 'tha'])
+    parser.add_argument("--data_path", type=str, default='./Font_Dataset', help="Path to Dataset")
     parser.add_argument("--output_path", type=str, default='../data/vecfont_dataset_/', help="Path to write the database to")
     parser.add_argument('--max_len', type=int, default=51, help="by default, 51 for english and 71 for chinese")
     parser.add_argument('--n_chars', type=int, default=52)
