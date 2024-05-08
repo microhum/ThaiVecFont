@@ -1,33 +1,33 @@
 import fontforge  # noqa
 import os
+from tqdm import tqdm
 import multiprocessing as mp
 import argparse
 
-# conda deactivate
-# apt install python3-fontforge
-
 def convert_mp(opts):
     """Useing multiprocessing to convert all fonts to sfd files"""
-    charset = open(f"../data/char_set/{opts.language}.txt", 'r').read()
+    charset = open(f"{opts.data_path}/char_set/{opts.language}.txt", 'r').read()
+    if opts.language in ["tha"]:
+        thai_floating = open(f"{opts.data_path}/char_set/{opts.language}_floating.txt", 'r').read()
     charset_lenw = len(str(len(charset)))
-    fonts_file_path = os.path.join(opts.ttf_path, opts.language) # opts.ttf_path,opts.language, 
+    fonts_file_path = os.path.join(opts.ttf_path, opts.language) # opts.ttf_path,opts.language,
     sfd_path = os.path.join(opts.sfd_path, opts.language)
     for root, dirs, files in os.walk(os.path.join(fonts_file_path, opts.split)):
         ttf_fnames = files
-    
+
     font_num = len(ttf_fnames)
-    process_num = mp.cpu_count() - 2
+    process_num = mp.cpu_count() - 1
     font_num_per_process = font_num // process_num + 1
 
     def process(process_id, font_num_p_process):
-        for i in range(process_id * font_num_p_process, (process_id + 1) * font_num_p_process):
+        for i in tqdm(range(process_id * font_num_p_process, (process_id + 1) * font_num_p_process)):
             if i >= font_num:
                 break
-            
+
             font_id = ttf_fnames[i].split('.')[0]
             split = opts.split
             font_name = ttf_fnames[i]
-            
+
             font_file_path = os.path.join(fonts_file_path, split, font_name)
             try:
                 cur_font = fontforge.open(font_file_path)
@@ -41,19 +41,20 @@ def convert_mp(opts):
                 os.makedirs(target_dir)
 
             for char_id, char in enumerate(charset):
+              try:
                 char_description = open(os.path.join(target_dir, '{}_{num:0{width}}.txt'.format(font_id, num=char_id, width=charset_lenw)), 'w')
-
+                if opts.language in ['tha']:
+                    if char in thai_floating:
+                        char = "ก"
                 if opts.language in ['chn', 'tha']:
                     char = 'uni' + char.encode("unicode_escape")[2:].decode("utf-8")
-                
+
                 cur_font.selection.select(char)
                 cur_font.copy()
 
                 new_font_for_char = fontforge.font()
 
-                if opts.language in ['tha']:
-                    char = 'uni' + "ฐ".encode("unicode_escape")[2:].decode("utf-8")
-                else: char = "A"
+                char = 'A'
 
                 new_font_for_char.selection.select(char)
                 new_font_for_char.paste()
@@ -66,8 +67,11 @@ def convert_mp(opts):
                 char_description.write(str(new_font_for_char[char].vwidth) + '\n')
                 char_description.write('{num:0{width}}'.format(num=char_id, width=charset_lenw) + '\n')
                 char_description.write('{}'.format(font_id))
-
+                # print('{}_{num:0{width}}.sfd'.format(font_id, num=char_id, width=charset_lenw))
                 char_description.close()
+              except Exception as e:
+                print("Found Error:", font_id, font_name ,char_id, char)
+                print(e)
 
             cur_font.close()
 

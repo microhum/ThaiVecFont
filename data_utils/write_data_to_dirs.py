@@ -4,6 +4,7 @@ import os
 import pickle
 import numpy as np
 import svg_utils
+from tqdm import tqdm
 
 def exist_empty_imgs(imgs_array, num_chars):
     for char_id in range(num_chars):
@@ -14,35 +15,41 @@ def exist_empty_imgs(imgs_array, num_chars):
     return False
 
 def create_db(opts, output_path, log_path):
-    charset = open(f"../data/char_set/{opts.language}.txt", 'r').read()
+    charset = open(f"{opts.data_path}/char_set/{opts.language}.txt", 'r').read()
     print("Process sfd to npy files in dirs....")
     sdf_path = os.path.join(opts.sfd_path, opts.language, opts.split)
     all_font_ids = sorted(os.listdir(sdf_path))
     num_fonts = len(all_font_ids)
     num_fonts_w = len(str(num_fonts))
     print(f"Number {opts.split} fonts before processing", num_fonts)
-    num_processes = mp.cpu_count() - 2
+    num_processes = mp.cpu_count() - 1
     fonts_per_process = num_fonts // num_processes + 1
     num_chars = len(charset)
     num_chars_w = len(str(num_chars))
 
 
+    # import ipdb; ipdb.set_trace()
+
     def process(process_id):
+        valid_chars = []
+        invalid_path = []
+        invalid_glypts = []
 
         cur_process_log_file = open(os.path.join(log_path, f'log_{opts.split}_{process_id}.txt'), 'w')
-        for i in range(process_id * fonts_per_process, (process_id + 1) * fonts_per_process):
+        for i in tqdm(range(process_id * fonts_per_process, (process_id + 1) * fonts_per_process)):
             if i >= num_fonts:
                 break
+
             font_id = all_font_ids[i]
             cur_font_sfd_dir = os.path.join(sdf_path, font_id)
             cur_font_glyphs = []
 
             if not os.path.exists(os.path.join(cur_font_sfd_dir, 'imgs_' + str(opts.img_size) + '.npy')):
                 continue
-            
+
             # a whole font as an entry
             for char_id in range(num_chars):
-                print(char_id)
+                # print('char_id :',char_id)
                 if not os.path.exists(os.path.join(cur_font_sfd_dir, '{}_{num:0{width}}.sfd'.format(font_id, num=char_id, width=num_chars_w))):
                     break
 
@@ -67,6 +74,7 @@ def create_db(opts, output_path, log_path):
 
                 if not svg_utils.is_valid_glyph(cur_glyph):
                     msg = f"font {font_idx}, char {char_idx} is not a valid glyph\n"
+                    invalid_path.glypts([font_idx, int(char_idx), charset[int(char_idx)]])
                     cur_process_log_file.write(msg)
                     char_desp_f.close()
                     sfd_f.close()
@@ -74,19 +82,21 @@ def create_db(opts, output_path, log_path):
                     break
                 pathunibfp = svg_utils.convert_to_path(cur_glyph)
 
+                # Main Problem ******
                 if not svg_utils.is_valid_path(pathunibfp):
                     msg = f"font {font_idx}, char {char_idx}'s sfd is not a valid path\n"
+                    invalid_path.append([font_idx, int(char_idx), charset[int(char_idx)]])
                     cur_process_log_file.write(msg)
                     char_desp_f.close()
                     sfd_f.close()
                     break
-
+                valid_chars.append([font_idx, int(char_idx), charset[int(char_idx)]])
                 example = svg_utils.create_example(pathunibfp)
 
                 cur_font_glyphs.append(example)
                 char_desp_f.close()
                 sfd_f.close()
-            
+
             if len(cur_font_glyphs) == num_chars:
                 # use the font whose all glyphs are valid
                 # merge the whole font
@@ -95,7 +105,7 @@ def create_db(opts, output_path, log_path):
 
                 if (rendered[0] == rendered[1]).all() == True:
                     continue
- 
+
                 sequence = []
                 seq_len = []
                 binaryfp = []
@@ -115,6 +125,10 @@ def create_db(opts, output_path, log_path):
                 np.save(os.path.join(output_path, '{num:0{width}}'.format(num=i, width=num_fonts_w), 'font_id.npy'), np.array(binaryfp))
                 np.save(os.path.join(output_path, '{num:0{width}}'.format(num=i, width=num_fonts_w), 'rendered_' + str(opts.img_size) + '.npy'), rendered)
 
+        print("valid_chars", len(valid_chars))
+        print("invalid_path:", invalid_path)
+        print("invalid_glypts:",invalid_glypts)
+
     processes = [mp.Process(target=process, args=[pid]) for pid in range(num_processes)]
 
     for p in processes:
@@ -127,19 +141,21 @@ def create_db(opts, output_path, log_path):
 
 def cal_mean_stddev(opts, output_path):
     print("Calculating all glyphs' mean stddev ....")
-    charset = open(f"../data/char_set/{opts.language}.txt", 'r').read()
+    charset = open(f"{opts.data_path}/char_set/{opts.language}.txt", 'r').read()
     font_paths = []
     for root, dirs, files in os.walk(output_path):
         for dir_name in dirs:
             font_paths.append(os.path.join(output_path, dir_name))
+            
     font_paths.sort()
     num_fonts = len(font_paths)
-    num_processes = mp.cpu_count() - 2
+    num_processes = mp.cpu_count() - 1
     fonts_per_process = num_fonts // num_processes + 1
-    num_chars = len(charset) 
+    num_chars = len(charset)
     manager = mp.Manager()
     return_dict = manager.dict()
     main_stddev_accum = svg_utils.MeanStddev()
+    print(main_stddev_accum)
 
     def process(process_id, return_dict):
         mean_stddev_accum = svg_utils.MeanStddev()
@@ -152,6 +168,7 @@ def cal_mean_stddev(opts, output_path):
                 cur_font_char = {}
                 cur_font_char['seq_len'] = np.load(os.path.join(cur_font_path, 'seq_len.npy')).tolist()[charid]
                 cur_font_char['sequence'] = np.load(os.path.join(cur_font_path, 'sequence.npy')).tolist()[charid]
+                # print(cur_font_char)
                 cur_sum_count = mean_stddev_accum.add_input(cur_sum_count, cur_font_char)
         return_dict[process_id] = cur_sum_count
     processes = [mp.Process(target=process, args=[pid, return_dict]) for pid in range(num_processes)]
@@ -163,8 +180,10 @@ def cal_mean_stddev(opts, output_path):
 
     merged_sum_count = main_stddev_accum.merge_accumulators(return_dict.values())
     output = main_stddev_accum.extract_output(merged_sum_count)
+    print('output :', output)
     mean = output['mean']
     stdev = output['stddev']
+    print('mean :', mean)
     mean = np.concatenate((np.zeros([4]), mean[4:]), axis=0)
     stdev = np.concatenate((np.ones([4]), stdev[4:]), axis=0)
     # finally, save the mean and stddev files
@@ -172,9 +191,10 @@ def cal_mean_stddev(opts, output_path):
     np.save(os.path.join(output_path_, 'mean'), mean)
     np.save(os.path.join(output_path_, 'stdev'), stdev)
 
-    # rename npy to npz, don't mind about it, just some legacy issue 
+    # rename npy to npz, don't mind about it, just some legacy issue
     os.rename(os.path.join(output_path_, 'mean.npy'), os.path.join(output_path_, 'mean.npz'))
     os.rename(os.path.join(output_path_, 'stdev.npy'), os.path.join(output_path_, 'stdev.npz'))
+
 
 def main():
     parser = argparse.ArgumentParser(description="LMDB creation")

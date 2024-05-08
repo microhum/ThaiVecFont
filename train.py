@@ -96,6 +96,7 @@ def train_main_model(opts):
                 logfile_train.write(message + '\n')
                 print(message)
                 if opts.tboard:
+                    print("Running With Tensorboard")
                     writer.add_scalar('Loss/loss', loss.item(), batches_done)
                     loss_img_items = ['l1', 'vggpt']
                     loss_svg_items = ['total', 'cmd', 'args', 'aux', 'smt']

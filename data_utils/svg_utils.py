@@ -44,6 +44,7 @@ FEATURE_DIM = 10
 
 MAX_SEQ_LEN = 70
 
+# Manually Change Max Sequence
 def change_max_seq_len(param):
     global MAX_SEQ_LEN
     MAX_SEQ_LEN = param

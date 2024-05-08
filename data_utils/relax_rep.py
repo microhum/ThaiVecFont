@@ -2,6 +2,8 @@ import argparse
 import multiprocessing as mp
 import os
 import numpy as np
+from dataclasses import dataclass
+from tqdm import tqdm
 
 def numericalize(cmd, n=64):
     """NOTE: shall only be called after normalization"""
@@ -45,13 +47,13 @@ def cal_aux_bezier_pts(font_seq, opts):
                     coord_t = (1-t)*(1-t)*(1-t)*p0 + 3*t*(1-t)*(1-t)*p1 + 3*t*t*(1-t)*p2 + t*t*t*p3
                     pts_aux_stroke.append(coord_t[0])
                     pts_aux_stroke.append(coord_t[1])
-            
+
             pts_aux_stroke = np.array(pts_aux_stroke)
             pts_aux_char.append(pts_aux_stroke)
-            
+
         pts_aux_char = np.array(pts_aux_char)
         pts_aux_all.append(pts_aux_char)
-    
+
     pts_aux_all = np.array(pts_aux_all)
 
     return pts_aux_all
@@ -66,13 +68,13 @@ def relax_rep(opts):
     font_dirs.sort()
     num_fonts = len(font_dirs)
     print(f"Number {opts.split} fonts before processing", num_fonts)
-    num_processes = mp.cpu_count() - 2
+    num_processes = mp.cpu_count() - 1
     # num_processes = 1
     fonts_per_process = num_fonts // num_processes + 1
 
     def process(process_id):
 
-        for i in range(process_id * fonts_per_process, (process_id + 1) * fonts_per_process):
+        for i in tqdm(range(process_id * fonts_per_process, (process_id + 1) * fonts_per_process)):
             if i >= num_fonts:
                 break
 
@@ -84,7 +86,7 @@ def relax_rep(opts):
 
             ret = []
             for j in range(opts.n_chars):
-            
+
                 char_cmds = cmd[j]
                 char_args = args[j]
                 char_len = font_len[j]
@@ -99,7 +101,7 @@ def relax_rep(opts):
                     else:
                         cur_arg = np.concatenate((np.array([pre_arg[-2], pre_arg[-1]]), cur_arg), -1)
                     new_args.append(cur_arg)
-                
+
                 while(len(new_args)) < opts.max_len:
                     new_args.append(np.array([0, 0, 0, 0, 0, 0, 0, 0]))
 
@@ -119,6 +121,7 @@ def relax_rep(opts):
         p.start()
     for p in processes:
         p.join()
+
     
 def main():
     parser = argparse.ArgumentParser(description="relax representation")

@@ -23,6 +23,7 @@ def get_parser_main_model():
     
     parser.add_argument('--random_index', type=str, default='00')
     parser.add_argument('--name_ckpt', type=str, default='600_192921.ckpt')
+    parser.add_argument('--model_path', type=str, default='')
     parser.add_argument('--init_epoch', type=int, default=0, help='init epoch')
     parser.add_argument('--n_epochs', type=int, default=800, help='number of epochs')
     parser.add_argument('--n_samples', type=int, default=20, help='the number of samples for each glyph when testing')
