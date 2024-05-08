@@ -1,11 +1,12 @@
 import fontforge  # noqa
 import os
+import sys
 from tqdm import tqdm
 import multiprocessing as mp
 import argparse
 
-import subprocess
-subprocess.run(['command'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+sys.stdout = open("/dev/null", "a")
+sys.stderr = open("/dev/null", "a")
 
 def convert_mp(opts):
     """Useing multiprocessing to convert all fonts to sfd files"""
