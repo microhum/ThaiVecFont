@@ -158,7 +158,7 @@ def main():
     parser.add_argument('--sfd_path', type=str, default='../data/font_sfds')
     parser.add_argument('--img_size', type=int, default=64)
     parser.add_argument('--split', type=str, default='train')
-    parser.add_argument('--FONT_SIZE', type=int, default=1)
+    parser.add_argument('--FONT_SIZE', type=float, default=1)
     parser.add_argument('--debug', type=bool, default=False)
     opts = parser.parse_args()
     write_glyph_imgs_mp(opts)

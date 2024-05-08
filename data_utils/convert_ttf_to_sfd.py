@@ -5,9 +5,6 @@ from tqdm import tqdm
 import multiprocessing as mp
 import argparse
 
-sys.stdout = open("/dev/null", "a")
-sys.stderr = open("/dev/null", "a")
-
 def convert_mp(opts):
     """Useing multiprocessing to convert all fonts to sfd files"""
     charset = open(f"{opts.data_path}/char_set/{opts.language}.txt", 'r').read()
