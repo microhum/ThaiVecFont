@@ -32,12 +32,15 @@ def get_parser_main_model():
 
     parser.add_argument('--mode', type=str, default='train', choices=['train', 'val', 'test'])
     parser.add_argument('--multi_gpu', type=bool, default=False)
+    parser.add_argument('--name_exp', type=str, default='dvf')
+
+    # Manually Add
     parser.add_argument('--exp_path', type=str, default='.')
     parser.add_argument('--dir_res', type=str, default=None)
-    parser.add_argument('--name_exp', type=str, default='dvf')
     parser.add_argument('--data_root', type=str, default='./data/vecfont_dataset/')
     parser.add_argument('--freq_ckpt', type=int, default=50, help='save checkpoint frequency of epoch')
     parser.add_argument('--threshold_ckpt', type=int, default=0, help='save checkpoint only when more than threshold epoch')
+
     parser.add_argument('--freq_sample', type=int, default=500, help='sample train output of steps')
     parser.add_argument('--freq_log', type=int, default=50, help='freq of showing logs')
     parser.add_argument('--freq_val', type=int, default=500, help='sample validate output of steps')
@@ -46,6 +49,7 @@ def get_parser_main_model():
     parser.add_argument('--eps', type=float, default=1e-8, help='Adam epsilon')
     parser.add_argument('--weight_decay', type=float, default=0.0, help='weight decay')
     parser.add_argument('--tboard', type=bool, default=True, help='whether use tensorboard to visulize loss')
+    parser.add_argument('--wandb', type=bool, default=True, help='whether use wandb to visulize loss')
 
     # loss weight
     parser.add_argument('--kl_beta', type=float, default=0.01, help='latent code kl loss beta')
