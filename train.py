@@ -44,7 +44,7 @@ def train_main_model(opts):
     train_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size, opts.mode)
     val_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size_val, 'test')
 
-    wandb.init(project=opts.wandb_project_name) # initialize wandb project
+    wandb.init(project=opts.wandb_project_name, config=opts) # initialize wandb project
     model_main = ModelMain(opts)
 
     if torch.cuda.is_available() and opts.multi_gpu:
