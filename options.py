@@ -50,6 +50,7 @@ def get_parser_main_model():
     parser.add_argument('--weight_decay', type=float, default=0.0, help='weight decay')
     parser.add_argument('--tboard', type=bool, default=True, help='whether use tensorboard to visulize loss')
     parser.add_argument('--wandb', type=bool, default=True, help='whether use wandb to visulize loss')
+    parser.add_argument('--wandb_project_name', type=str, default="DeepVecFontV2", help='wandb project name')
 
     # loss weight
     parser.add_argument('--kl_beta', type=float, default=0.01, help='latent code kl loss beta')

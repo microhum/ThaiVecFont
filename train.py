@@ -8,6 +8,7 @@ import torch.nn.functional as F
 from torch.optim import Adam, AdamW
 from torchvision.utils import save_image
 from tensorboardX import SummaryWriter
+import wandb
 from dataloader import get_loader
 from models import util_funcs
 from models.model_main import ModelMain
@@ -15,6 +16,14 @@ from options import get_parser_main_model
 from data_utils.svg_utils import render
 from time import time
 # from lion_pytorch import Lion
+
+# Get WanDB API
+api_key = os.getenv('WANDB_API_KEY')
+
+if api_key:
+    print("WandB API Key retrieved successfully!")
+else:
+    print("WandB API Key not found. Please set the environment variable 'WANDB_API_KEY'.")
 
 def setup_seed(seed):
     torch.manual_seed(seed)
@@ -35,6 +44,7 @@ def train_main_model(opts):
     train_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size, opts.mode)
     val_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size_val, 'test')
 
+    wandb.init(project=opts.wandb_project_name) # initialize wandb project
     model_main = ModelMain(opts)
 
     if torch.cuda.is_available() and opts.multi_gpu:
@@ -97,6 +107,32 @@ def train_main_model(opts):
                     writer.add_scalar('Loss/img_kl_loss', opts.kl_beta * loss_dict['kl'].item(), batches_done)
                     writer.add_image('Images/trg_img', ret_dict['img']['trg'][0], batches_done)
                     writer.add_image('Images/img_output', ret_dict['img']['out'][0], batches_done)
+
+                if opts.wandb:
+                    print("Running With Wandb")
+                    # Define the items for image and SVG losses
+                    loss_img_items = ['l1', 'vggpt']
+                    loss_svg_items = ['total', 'cmd', 'args', 'aux', 'smt']
+
+                    # Log image loss items
+                    for item in loss_img_items:
+                        wandb.log({f'Loss/img_{item}': loss_dict['img'][item].item()}, step=batches_done)
+
+                    # Log SVG loss items
+                    for item in loss_svg_items:
+                        wandb.log({f'Loss/svg_{item}': loss_dict['svg'][item].item()}, step=batches_done)
+                        wandb.log({f'Loss/svg_para_{item}': loss_dict['svg_para'][item].item()}, step=batches_done)
+
+                    # Log KL loss
+                    wandb.log({'Loss/img_kl_loss': opts.kl_beta * loss_dict['kl'].item()}, step=batches_done)
+
+                    # Log target image
+                    wandb.log({'Images/trg_img': wandb.Image(ret_dict['img']['trg'][0])}, step=batches_done)
+
+                    # Log output image
+                    wandb.log({'Images/img_output': wandb.Image(ret_dict['img']['out'][0])}, step=batches_done)
+                    
+
 
             if opts.freq_sample > 0 and batches_done % opts.freq_sample == 0:
                 
