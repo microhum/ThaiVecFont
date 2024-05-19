@@ -94,7 +94,7 @@ def train_main_model(opts):
                 logfile_train.write(message + '\n')
                 print(message)
                 if opts.tboard:
-                    print("Running With Tensorboard")
+                    # print("Running With Tensorboard")
                     writer.add_scalar('Loss/loss', loss.item(), batches_done)
                     loss_img_items = ['l1', 'vggpt']
                     loss_svg_items = ['total', 'cmd', 'args', 'aux', 'smt']
@@ -109,7 +109,7 @@ def train_main_model(opts):
                     writer.add_image('Images/img_output', ret_dict['img']['out'][0], batches_done)
 
                 if opts.wandb:
-                    print("Running With Wandb")
+                    # print("Running With Wandb")
                     # Define the items for image and SVG losses
                     loss_img_items = ['l1', 'vggpt']
                     loss_svg_items = ['total', 'cmd', 'args', 'aux', 'smt']
@@ -162,6 +162,12 @@ def train_main_model(opts):
                         for loss_cat in ['img', 'svg']:
                             for key, _ in loss_val[loss_cat].items():
                                 writer.add_scalar(f'VAL/loss_{loss_cat}_{key}', loss_val[loss_cat][key], batches_done)
+                    if opts.wandb:
+                        for loss_cat in ['img', 'svg']:
+                            # Iterate over keys and values in the loss dictionary
+                            for key, value in loss_val[loss_cat].items():
+                                # Log loss value to WandB
+                                wandb.log({f'VAL/loss_{loss_cat}_{key}': value})
                         
                     val_msg = (
                         f"Epoch: {epoch}/{opts.n_epochs}, Batch: {idx}/{len(train_loader)}, "

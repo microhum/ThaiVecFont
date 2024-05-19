@@ -27,7 +27,7 @@ def test_main_model(opts):
         
         for val_idx, val_data in enumerate(test_loader):
             for key in val_data: val_data[key] = val_data[key].cuda()
-            ret_dict_val, loss_dict_val = model_main(val_data, mode='val')
+            ret_dict_val, loss_dict_val = model_main(val_data, mode='test')
             for loss_cat in ['img', 'svg']:
                 for key, _ in loss_val[loss_cat].items():
                     loss_val[loss_cat][key] += loss_dict_val[loss_cat][key]
