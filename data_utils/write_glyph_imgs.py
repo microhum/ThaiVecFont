@@ -23,6 +23,7 @@ def write_glyph_imgs_mp(opts):
     charset = open(f"{opts.data_path}/char_set/{opts.language}.txt", 'r').read()
     if opts.language in ["tha"]:
         thai_floating = open(f"{opts.data_path}/char_set/{opts.language}_floating.txt", 'r').read()
+
     fonts_file_path = os.path.join(opts.ttf_path, opts.language)
     sfd_path = os.path.join(opts.sfd_path, opts.language)
     for root, dirs, files in os.walk(os.path.join(fonts_file_path, opts.split)):
@@ -85,9 +86,6 @@ def write_glyph_imgs_mp(opts):
                     add_to_x = 0
 
                 char = charset[charid]
-                if opts.language == "tha":
-                    if char in thai_floating:
-                      char = "  "+char
 
                 array = np.ndarray((opts.img_size, opts.img_size), np.uint8)
                 array[:, :] = 255

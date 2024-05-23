@@ -82,7 +82,6 @@ def create_db(opts, output_path, log_path):
                     break
                 pathunibfp = svg_utils.convert_to_path(cur_glyph)
 
-                # Main Problem ******
                 if not svg_utils.is_valid_path(pathunibfp):
                     msg = f"font {font_idx}, char {char_idx}'s sfd is not a valid path\n"
                     invalid_path.append([font_idx, int(char_idx), charset[int(char_idx)]])
