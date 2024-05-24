@@ -126,11 +126,10 @@ def train_main_model(opts):
                     # Log KL loss
                     wandb.log({'Loss/img_kl_loss': opts.kl_beta * loss_dict['kl'].item()}, step=batches_done)
 
-                    # Log target image
-                    wandb.log({'Images/trg_img': wandb.Image(ret_dict['img']['trg'][0])}, step=batches_done)
-
-                    # Log output image
-                    wandb.log({'Images/img_output': wandb.Image(ret_dict['img']['out'][0])}, step=batches_done)
+                    wandb.log({
+                        'Images/trg_img': wandb.Image(ret_dict['img']['trg'][0], caption="Target"),
+                        'Images/img_output': wandb.Image(ret_dict['img']['out'][0], caption="Output")
+                    }, step=batches_done)
                     
 
 
@@ -193,7 +192,7 @@ def train_main_model(opts):
                 torch.save({'model':model_main.state_dict(), 'opt':optimizer.state_dict(), 'n_epoch':epoch, 'n_iter':batches_done}, f'{dir_ckpt}/{epoch}_{batches_done}.ckpt')
             if opts.wandb:
                 artifact = wandb.Artifact('model_main_checkpoints', type='model')
-                artifact.add_dir(f'{dir_ckpt}/{epoch}_{batches_done}.ckpt')
+                artifact.add_file(f'{dir_ckpt}/{epoch}_{batches_done}.ckpt')
                 run.log_artifact(artifact)
 
     logfile_train.close()
