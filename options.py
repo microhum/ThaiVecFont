@@ -24,7 +24,6 @@ def get_parser_main_model():
     parser.add_argument('--random_index', type=str, default='00')
     parser.add_argument('--name_ckpt', type=str, default='600_192921.ckpt')
     parser.add_argument('--model_path', type=str, default='')
-    parser.add_argument('--init_epoch', type=int, default=0, help='init epoch')
     parser.add_argument('--n_epochs', type=int, default=800, help='number of epochs')
     parser.add_argument('--n_samples', type=int, default=20, help='the number of samples for each glyph when testing')
     parser.add_argument('--lr', type=float, default=0.0002, help='learning rate')
@@ -33,6 +32,11 @@ def get_parser_main_model():
     parser.add_argument('--mode', type=str, default='train', choices=['train', 'val', 'test'])
     parser.add_argument('--multi_gpu', type=bool, default=False)
     parser.add_argument('--name_exp', type=str, default='dvf')
+
+    # continue training'
+    parser.add_argument('--continue_training', type=bool, default=False, help='whether continue training from old checkpoint')
+    parser.add_argument('--ref_char_ids', type=str, default='0,1,26,27', help='checkpoint model for continue training')
+    parser.add_argument('--init_epoch', type=int, default=0, help='init epoch')
 
     # Manually Add
     parser.add_argument('--exp_path', type=str, default='.')
