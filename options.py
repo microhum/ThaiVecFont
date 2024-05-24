@@ -35,7 +35,7 @@ def get_parser_main_model():
 
     # continue training'
     parser.add_argument('--continue_training', type=bool, default=False, help='whether continue training from old checkpoint')
-    parser.add_argument('--ref_char_ids', type=str, default='0,1,26,27', help='checkpoint model for continue training')
+    parser.add_argument('--continue_ckpt', type=str, default='.', help='checkpoint model for continue training')
     parser.add_argument('--init_epoch', type=int, default=0, help='init epoch')
 
     # Manually Add
