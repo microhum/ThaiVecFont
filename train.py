@@ -44,7 +44,7 @@ def train_main_model(opts):
     train_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size, opts.mode)
     val_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size_val, 'test')
 
-    wandb.init(project=opts.wandb_project_name, config=opts) # initialize wandb project
+    run = wandb.init(project=opts.wandb_project_name, config=opts) # initialize wandb project
     model_main = ModelMain(opts)
 
     if torch.cuda.is_available() and opts.multi_gpu:
@@ -191,6 +191,10 @@ def train_main_model(opts):
             else:
                 print(f"Saved {dir_ckpt}/{epoch}_{batches_done}.ckpt")
                 torch.save({'model':model_main.state_dict(), 'opt':optimizer.state_dict(), 'n_epoch':epoch, 'n_iter':batches_done}, f'{dir_ckpt}/{epoch}_{batches_done}.ckpt')
+            if opts.wandb:
+                artifact = wandb.Artifact('model_main_checkpoints', type='model')
+                artifact.add_dir(f'{dir_ckpt}/{epoch}_{batches_done}.ckpt')
+                run.log_artifact(artifact)
 
     logfile_train.close()
     logfile_val.close()
