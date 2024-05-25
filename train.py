@@ -45,12 +45,12 @@ def train_main_model(opts):
     val_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size_val, 'test')
 
     run = wandb.init(project=opts.wandb_project_name, config=opts) # initialize wandb project
+    model_main = ModelMain(opts)
+    if torch.cuda.is_available() and opts.multi_gpu:
+        model_main = torch.nn.DataParallel(model_main)
+        
     if opts.continue_training:
         model_main.load_state_dict(torch.load(opts.continue_ckpt)['model'])
-    else:
-        model_main = ModelMain(opts)
-        if torch.cuda.is_available() and opts.multi_gpu:
-            model_main = torch.nn.DataParallel(model_main)
     
     model_main.cuda()
 
