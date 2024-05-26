@@ -148,20 +148,31 @@ class ModelMain(nn.Module):
         input_sequence = torch.cat([cmd_cls, arg_quant], dim=-1) # 1 + 8 = 9 dimension
 
         # choose reference classes and target classes
-        if mode == 'train':
-            ref_cls = torch.randint(0, self.opts.char_num, (input_image.size(0), self.opts.ref_nshot)).cuda()
-        elif mode == 'val':
-            ref_cls = torch.arange(0, self.opts.ref_nshot, 1).cuda().unsqueeze(0).expand(input_image.size(0), -1)
+        if opts.ref_nshot == 52: # For ENG to TH
+            ref_cls_upper = torch.randint(0, 26, (input_image.size(0), opts.ref_nshot // 2)).cuda()
+            ref_cls_lower = torch.randint(26, 52, (input_image.size(0), opts.ref_nshot // 2)).cuda()
+            ref_cls = torch.cat((ref_cls_upper, ref_cls_lower), -1)
         else:
-            ref_ids = self.opts.ref_char_ids.split(',')
-            ref_ids = list(map(int, ref_ids))
-            assert len(ref_ids) == self.opts.ref_nshot
-            ref_cls = torch.tensor(ref_ids).cuda().unsqueeze(0).expand(self.opts.char_num, -1)
+            if mode == 'train':
+                ref_cls = torch.randint(0, self.opts.char_num, (input_image.size(0), self.opts.ref_nshot)).cuda()
+            elif mode == 'val':
+                ref_cls = torch.arange(0, self.opts.ref_nshot, 1).cuda().unsqueeze(0).expand(input_image.size(0), -1)
+            else:
+                ref_ids = self.opts.ref_char_ids.split(',')
+                ref_ids = list(map(int, ref_ids))
+                assert len(ref_ids) == self.opts.ref_nshot
+                ref_cls = torch.tensor(ref_ids).cuda().unsqueeze(0).expand(self.opts.char_num, -1)
+        
+        
         
         if mode in {'train', 'val'}:
             trg_cls = torch.randint(0, self.opts.char_num, (input_image.size(0), 1)).cuda()
+            if opts.ref_nshot == 52:
+                trg_cls = torch.randint(52, opts.char_num, (input_image.size(0), 1)).cuda()
         else:
             trg_cls = torch.arange(0, self.opts.char_num).cuda()
+            if opts.ref_nshot == 52:
+                trg_cls = torch.randint(52, opts.char_categories, (input_image.size(0), 1)).cuda()
             trg_cls = trg_cls.view(self.opts.char_num, 1)
             input_image = input_image.expand(self.opts.char_num, -1, -1, -1)
             input_sequence = input_sequence.expand(self.opts.char_num, -1, -1, -1)
