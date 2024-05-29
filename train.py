@@ -15,15 +15,6 @@ from models.model_main import ModelMain
 from options import get_parser_main_model
 from data_utils.svg_utils import render
 from time import time
-# from lion_pytorch import Lion
-
-# Get WanDB API
-api_key = os.getenv('WANDB_API_KEY')
-
-if api_key:
-    print("WandB API Key retrieved successfully!")
-else:
-    print("WandB API Key not found. Please set the environment variable 'WANDB_API_KEY'.")
 
 def setup_seed(seed):
     torch.manual_seed(seed)

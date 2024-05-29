@@ -9,6 +9,7 @@ from models.transformers import denumericalize
 from options import get_parser_main_model
 from data_utils.svg_utils import render
 from models.util_funcs import svg2img, cal_iou
+from tqdm import tqdm
 
 def test_main_model(opts):
     if opts.dir_res:
@@ -18,17 +19,20 @@ def test_main_model(opts):
         dir_res = os.path.join(f"{opts.exp_path}", "experiments/", opts.name_exp, "results")
 
     test_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size, 'test')
-
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu")
     model_main = ModelMain(opts)
-    path_ckpt = os.path.join(f"{opts.exp_path}", 'experiments', opts.name_exp, 'checkpoints', opts.name_ckpt)
+    path_ckpt = os.path.join(f"{opts.model_path}")
     model_main.load_state_dict(torch.load(path_ckpt)['model'])
-    model_main.cuda()
+    model_main.to(device)
     model_main.eval()
 
     with torch.no_grad():
         
         for test_idx, test_data in enumerate(test_loader):
-            for key in test_data: test_data[key] = test_data[key].cuda()
+            for key in test_data: test_data[key] = test_data[key].to(device)
 
             print("testing font %04d ..."%test_idx)
 
@@ -46,7 +50,7 @@ def test_main_model(opts):
             # syn_svg_merge_f = open(os.path.join(svg_merge_dir, f"{opts.name_ckpt}_syn_merge_{test_idx}_rand_{sample_idx}.html"), 'w') 
             syn_svg_merge_f = open(os.path.join(svg_merge_dir, f"{opts.name_ckpt}_syn_merge_{test_idx}.html"), 'w') 
     
-            for sample_idx in range(opts.n_samples):
+            for sample_idx in tqdm(range(opts.n_samples)):
                 ret_dict_test, loss_dict_test = model_main(test_data, mode='test')
 
                 svg_sampled = ret_dict_test['svg']['sampled_1']

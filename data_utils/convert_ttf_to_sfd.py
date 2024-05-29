@@ -5,16 +5,22 @@ from tqdm import tqdm
 import multiprocessing as mp
 import argparse
 
+
 def convert_mp(opts):
     """Useing multiprocessing to convert all fonts to sfd files"""
-    charset = open(f"{opts.data_path}/char_set/{opts.language}.txt", 'r').read()
-    if opts.language in ["tha"]:
-        thai_floating = open(f"{opts.data_path}/char_set/{opts.language}_floating.txt", 'r').read()
+    
+    charset_th = open(f"{opts.data_path}/char_set/{opts.language}.txt", 'r').read()
+    charset = charset_th
+    if opts.ref_nshot == 52:
+        charset_eng = open(f"{opts.data_path}/char_set/eng.txt", 'r').read()
+        charset = charset_th + charset_eng
     charset_lenw = len(str(len(charset)))
     fonts_file_path = os.path.join(opts.ttf_path, opts.language) # opts.ttf_path,opts.language,
     sfd_path = os.path.join(opts.sfd_path, opts.language)
+    print(os.path.join(fonts_file_path, opts.split))
     for root, dirs, files in os.walk(os.path.join(fonts_file_path, opts.split)):
         ttf_fnames = files
+        print(ttf_fnames)
 
     font_num = len(ttf_fnames)
     process_num = mp.cpu_count() - 1
@@ -44,17 +50,16 @@ def convert_mp(opts):
             for char_id, char in enumerate(charset):
               try:
                 char_description = open(os.path.join(target_dir, '{}_{num:0{width}}.txt'.format(font_id, num=char_id, width=charset_lenw)), 'w')
-                if opts.language in ['tha']:
-                    if char in thai_floating:
-                        char = "ก"
-                if opts.language in ['chn', 'tha']:
+                if char in charset_th:
                     char = 'uni' + char.encode("unicode_escape")[2:].decode("utf-8")
 
                 cur_font.selection.select(char)
                 cur_font.copy()
 
                 new_font_for_char = fontforge.font()
-
+                # new_font_for_char.ascent = 750
+                # new_font_for_char.descent = 250
+                # new_font_for_char.em = new_font_for_char.ascent + new_font_for_char.descent
                 char = 'A'
 
                 new_font_for_char.selection.select(char)

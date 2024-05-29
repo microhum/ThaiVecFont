@@ -1,6 +1,11 @@
 data/
 experiments/
 inference_few_shot.py
+flagged
+inference
+inference_model
+Font_dataset
+venv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

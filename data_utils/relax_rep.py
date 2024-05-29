@@ -20,10 +20,10 @@ def cal_aux_bezier_pts(font_seq, opts):
     """
     pts_aux_all = []
 
-    for j in range(opts.n_chars):
+    for j in range(opts.char_num):
         char_seq = font_seq[j] # shape: opts.max_len ,12
         pts_aux_char = []
-        for k in range(opts.max_len):
+        for k in range(opts.max_seq_len):
             stroke_seq = char_seq[k]
             stroke_cmd = np.argmax(stroke_seq[:4], -1)
             stroke_seq[4:] = denumericalize(numericalize(stroke_seq[4:]))
@@ -79,13 +79,13 @@ def relax_rep(opts):
                 break
 
             font_dir = os.path.join(data_path, font_dirs[i])
-            font_seq = np.load(os.path.join(font_dir, 'sequence.npy')).reshape(opts.n_chars, opts.max_len, -1)
+            font_seq = np.load(os.path.join(font_dir, 'sequence.npy')).reshape(opts.char_num, opts.max_seq_len, -1)
             font_len = np.load(os.path.join(font_dir, 'seq_len.npy')).reshape(-1)
             cmd = font_seq[:, :, :4]
             args = font_seq[:, :, 4:]
 
             ret = []
-            for j in range(opts.n_chars):
+            for j in range(opts.char_num):
 
                 char_cmds = cmd[j]
                 char_args = args[j]
@@ -102,7 +102,7 @@ def relax_rep(opts):
                         cur_arg = np.concatenate((np.array([pre_arg[-2], pre_arg[-1]]), cur_arg), -1)
                     new_args.append(cur_arg)
 
-                while(len(new_args)) < opts.max_len:
+                while(len(new_args)) < opts.max_seq_len:
                     new_args.append(np.array([0, 0, 0, 0, 0, 0, 0, 0]))
 
                 new_args = np.array(new_args)
@@ -110,7 +110,7 @@ def relax_rep(opts):
                 ret.append(new_seq)
             ret = np.array(ret)
             # write relaxed version of sequence.npy
-            np.save(os.path.join(font_dir, 'sequence_relaxed.npy'), ret.reshape(opts.n_chars, -1))
+            np.save(os.path.join(font_dir, 'sequence_relaxed.npy'), ret.reshape(opts.char_num, -1))
 
             pts_aux = cal_aux_bezier_pts(ret, opts)
             np.save(os.path.join(font_dir, 'pts_aux.npy'), pts_aux)
@@ -128,8 +128,6 @@ def main():
     parser.add_argument("--language", type=str, default='eng', choices=['eng', 'chn', 'tha'])
     parser.add_argument("--data_path", type=str, default='./Font_Dataset', help="Path to Dataset")
     parser.add_argument("--output_path", type=str, default='../data/vecfont_dataset_/', help="Path to write the database to")
-    parser.add_argument('--max_len', type=int, default=51, help="by default, 51 for english and 71 for chinese")
-    parser.add_argument('--n_chars', type=int, default=52)
     parser.add_argument("--split", type=str, default='train')
     opts = parser.parse_args()
     relax_rep(opts)

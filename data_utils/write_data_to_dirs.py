@@ -3,7 +3,7 @@ import multiprocessing as mp
 import os
 import pickle
 import numpy as np
-import svg_utils
+from data_utils import svg_utils
 from tqdm import tqdm
 
 def exist_empty_imgs(imgs_array, num_chars):

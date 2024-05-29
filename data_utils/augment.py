@@ -5,7 +5,7 @@ import numpy as np
 import math
 import cairosvg
 import shutil
-from svg_utils import clockwise, render
+from data_utils.svg_utils import clockwise, render
 from common_utils import affine_shear, affine_rotate, affine_scale, trans2_white_bg
 
 def render_svg(svg_str, font_dir, char_idx, aug_idx, img_size):

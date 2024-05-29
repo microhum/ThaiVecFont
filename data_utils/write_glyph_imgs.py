@@ -7,6 +7,7 @@ import numpy as np
 import os
 import multiprocessing as mp
 from tqdm import tqdm
+char_error = 0
 
 def get_bbox(img):
     img = 255 - np.array(img)
@@ -21,9 +22,6 @@ def get_bbox(img):
 def write_glyph_imgs_mp(opts):
     """Useing multiprocessing to render glyph images"""
     charset = open(f"{opts.data_path}/char_set/{opts.language}.txt", 'r').read()
-    if opts.language in ["tha"]:
-        thai_floating = open(f"{opts.data_path}/char_set/{opts.language}_floating.txt", 'r').read()
-
     fonts_file_path = os.path.join(opts.ttf_path, opts.language)
     sfd_path = os.path.join(opts.sfd_path, opts.language)
     for root, dirs, files in os.walk(os.path.join(fonts_file_path, opts.split)):
@@ -93,7 +91,7 @@ def write_glyph_imgs_mp(opts):
                 draw = ImageDraw.Draw(image)
                 try:
                     font_width, font_height = font.getsize(char)
-                except:
+                except Exception as e:
                     print('cant calculate height and width ' + "%04d"%i + '_' + '{num:0{width}}'.format(num=charid, width=charset_lenw))
                     flag_success = False
                     break
@@ -107,7 +105,12 @@ def write_glyph_imgs_mp(opts):
 
                 draw_pos_x = add_to_x
                 #if opts.language == 'eng':
-                draw_pos_y = add_to_y + opts.img_size - ascent - descent - int((opts.img_size / 24.0) * (10.0 / 3.0))
+                thai_characters_long = ["ญ","ฎ","ฏ","ฐ"]
+
+                if char in thai_characters_long:
+                    draw_pos_y = add_to_y + opts.img_size - ascent - descent - int((opts.img_size / 24.0) * (10.0 / 3.0))
+                else:
+                    draw_pos_y = add_to_y + opts.img_size - ascent - int((opts.img_size / 24.0) * (10.0 / 3.0))
                 #else:
                 #    draw_pos_y = add_to_y + opts.img_size - ascent - int((opts.img_size / 24.0) * (10.0 / 3.0))
 
@@ -125,21 +128,32 @@ def write_glyph_imgs_mp(opts):
                     flag_success = False
                     break
                 
-                if (char_w < opts.img_size * 0.15) and (char_h < opts.img_size * 0.15) and char[-1] not in thai_floating:
-                    print("char smaller than image threshold")
+                # Detect large font
+                problem = []
+                if font_width > 59:
+                    problem.append("width")
+
+                if font_height > 93:
+                    problem.append("height")
+
+                if problem:
+                    print(problem,fontname, charid, font_width, font_height, char_w, char_h)
                     flag_success = False
                     break
-                elif (char_w < opts.img_size * 0.05) and (char_h < opts.img_size * 0.05) and char[-1] in thai_floating:
-                    print("char smaller than image threshold (thai_floating)")
+
+                # Detect Small Font
+                if (char_w < opts.img_size * 0.15) and (char_h < opts.img_size * 0.15):
                     flag_success = False
+                    break
 
                 fontimgs_array[charid] = np.array(image)
 
             if flag_success:
                 np.save(os.path.join(sfd_path, opts.split, fontname, 'imgs_' + str(opts.img_size) + '.npy'), fontimgs_array)
             else:
+                global char_error # Count char flag not success
+                char_error += 1
                 print("flag on", fontname, charid,  'imgs_' + str(opts.img_size) + '.npy', " Not Succeed")
-                # print(char_w, char_h, opts.img_size * 0.15)
 
     processes = [mp.Process(target=process, args=(pid, font_num_per_process)) for pid in range(process_nums)]
 
