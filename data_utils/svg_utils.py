@@ -1025,7 +1025,7 @@ def clockwise(seq):
     vector = np.concatenate([np.take(vector, [0, 4, 5, 9], axis=-1), vector[..., -6:]], axis=-1)
     ret['seq_len'] = np.shape(vector)[0]
     vector = _append_eos(vector.tolist(), True, 10)
-    ret['sequence'] = np.concatenate((vector, np.zeros(((70 - ret['seq_len']), 10))), 0)
+    ret['sequence'] = np.concatenate((vector, np.zeros(((MAX_SEQ_LEN - ret['seq_len']), 10))), 0)
     return ret
 
 ################### CHECK VALID ##############################################

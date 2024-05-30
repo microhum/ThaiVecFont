@@ -25,7 +25,7 @@ def affine_shear(seq, dx=-0.3, dy=0.0):
                             [dy, 1]])
     rotated_args = np.dot(affine_matrix,seq_args)
     rotated_args = rotated_args.transpose(1,0)
-    new_args = np.concatenate([rotated_args[:seq.shape[0]], rotated_args[seq.shape[0]:142], rotated_args[142:]],-1)
+    new_args = np.concatenate([rotated_args[:seq.shape[0]], rotated_args[seq.shape[0]:seq.shape[0]*2], rotated_args[seq.shape[0]*2:]],-1)
     new_args[:,0] += 12.0
     new_args[:,1] = -(new_args[:,1] - 12)
     new_args[:,2] += 12.0
@@ -61,7 +61,7 @@ def affine_rotate(seq,theta=-5):
     affine_matrix=np.array([[np.cos(theta),-np.sin(theta)], [np.sin(theta), np.cos(theta)]])# note 2,2
     rotated_args = np.dot(affine_matrix,seq_args)# note 2,213
     rotated_args = rotated_args.transpose(1,0)# note 213,2
-    new_args = np.concatenate([rotated_args[:seq.shape[0]],rotated_args[seq.shape[0]:142],rotated_args[142:]],-1)# note 2,213
+    new_args = np.concatenate([rotated_args[:seq.shape[0]],rotated_args[seq.shape[0]:seq.shape[0]*2],rotated_args[seq.shape[0]*2:]],-1)# note 2,213
     new_args[:,0] +=12.0
     new_args[:,1] = -(new_args[:,1]-12)
     new_args[:,2] +=12.0
