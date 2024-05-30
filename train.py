@@ -128,6 +128,7 @@ def train_main_model(opts):
                     }, step=batches_done)
 
                     text_table.add_data(epoch, loss, str(ret_dict['img']['ref'][0])) 
+                    wandb.log({"training_samples" : text_table})
                     
 
 
