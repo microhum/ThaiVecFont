@@ -36,6 +36,8 @@ def train_main_model(opts):
     val_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size_val, 'val')
 
     run = wandb.init(project=opts.wandb_project_name, config=opts) # initialize wandb project
+    text_table = wandb.Table(columns=["epoch", "loss", "ref"])
+
     model_main = ModelMain(opts)
     if torch.cuda.is_available() and opts.multi_gpu:
         model_main = torch.nn.DataParallel(model_main)
@@ -98,7 +100,7 @@ def train_main_model(opts):
                     for item in loss_svg_items:
                         writer.add_scalar(f'Loss/svg_para_{item}', loss_dict['svg_para'][item].item(), batches_done)
                     writer.add_scalar('Loss/img_kl_loss', opts.kl_beta * loss_dict['kl'].item(), batches_done)
-                    writer.add_image('Images/ref_img', ret_dict['img']['ref'][0], batches_done)
+                    writer.add_text('text/ref_img', str(ret_dict['img']['ref'][0]), batches_done)
                     writer.add_image('Images/trg_img', ret_dict['img']['trg'][0], batches_done)
                     writer.add_image('Images/img_output', ret_dict['img']['out'][0], batches_done)
 
@@ -121,10 +123,11 @@ def train_main_model(opts):
                     wandb.log({'Loss/img_kl_loss': opts.kl_beta * loss_dict['kl'].item()}, step=batches_done)
 
                     wandb.log({
-                        'Images/ref_img': wandb.Image(ret_dict['img']['ref'][0], caption="Reference"),
                         'Images/trg_img': wandb.Image(ret_dict['img']['trg'][0], caption="Target"),
                         'Images/img_output': wandb.Image(ret_dict['img']['out'][0], caption="Output")
                     }, step=batches_done)
+
+                    text_table.add_data(epoch, loss, str(ret_dict['img']['ref'][0])) 
                     
 
 
