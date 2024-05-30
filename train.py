@@ -98,6 +98,7 @@ def train_main_model(opts):
                     for item in loss_svg_items:
                         writer.add_scalar(f'Loss/svg_para_{item}', loss_dict['svg_para'][item].item(), batches_done)
                     writer.add_scalar('Loss/img_kl_loss', opts.kl_beta * loss_dict['kl'].item(), batches_done)
+                    writer.add_image('Images/ref_img', ret_dict['img']['ref'][0], batches_done)
                     writer.add_image('Images/trg_img', ret_dict['img']['trg'][0], batches_done)
                     writer.add_image('Images/img_output', ret_dict['img']['out'][0], batches_done)
 
@@ -120,6 +121,7 @@ def train_main_model(opts):
                     wandb.log({'Loss/img_kl_loss': opts.kl_beta * loss_dict['kl'].item()}, step=batches_done)
 
                     wandb.log({
+                        'Images/ref_img': wandb.Image(ret_dict['img']['ref'][0], caption="Reference"),
                         'Images/trg_img': wandb.Image(ret_dict['img']['trg'][0], caption="Target"),
                         'Images/img_output': wandb.Image(ret_dict['img']['out'][0], caption="Output")
                     }, step=batches_done)

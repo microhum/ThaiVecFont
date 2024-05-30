@@ -132,7 +132,7 @@ def main():
     #     theme="default",
     # ).launch()
     print(opts.mode)
-    ttf_to_image("./Athiti-Regular.ttf")
+    ttf_to_image("font_sample/SaoChingcha-Regular.otf")
     
 if __name__ == "__main__":
     main()
