@@ -1,138 +1,113 @@
-import gradio as gr
-import fontTools
+from typing import Optional
+import streamlit as st
+from generate import ttf_to_image
+from PIL import Image
 import os
-import shutil
-import typing
-import PIL
-from PIL import Image, ImageDraw, ImageFont
-from data_utils.convert_ttf_to_sfd import convert_mp
-from data_utils.write_glyph_imgs import write_glyph_imgs_mp
-from data_utils.write_data_to_dirs import create_db
-from data_utils.relax_rep import relax_rep
-from test_few_shot import test_main_model
-from options import get_parser_main_model
 
-opts = get_parser_main_model().parse_args()
+LOADED_TTF_KEY = "loaded_ttf"
+SET_IMG_KEY = "set_img"
+OUTPUT_IMG_KEY = "output_img"
 
-# Config on opts
-# Inference opts
-opts.mode = "test"
-opts.language = "tha"
-opts.char_num = 44
-opts.ref_nshot = 8
-opts.batch_size = 1 # inference rule
-opts.img_size = 64
-opts.max_seq_len = 121
-opts.n_samples = 100
-opts.name_ckpt = ""
-opts.model_path = "./inference_model/950_49452.ckpt"
-opts.ref_char_ids = "0,1,2,3,4,5,6,7"
-opts.dir_res = "./inference"
-opts.data_root = "./inference/vecfont_dataset/"
+def get_ttf(key: str) -> Optional[any]:
+    if key in st.session_state:
+        return st.session_state[key]
+    return None
 
-# Data preprocessing opts
-opts.data_path = './inference'
-opts.sfd_path = f'{opts.data_path}/font_sfds'
-opts.ttf_path = f'{opts.data_path}/font_ttfs'
-opts.split = "test"
-opts.debug = False # Save Image On write_glyph_imgs_mp
-opts.output_path = f'{opts.data_path}/vecfont_dataset/'
-opts.phase = 0
-opts.FONT_SIZE = 1
+def get_img(key: str) -> Optional[Image.Image]:
+    if key in st.session_state:
+        return st.session_state[key]
+    return None
 
+def set_img(key: str, img: Image.Image):
+    st.session_state[key] = img
 
-# Glypts ID :
-# [(0, 'A'), (1, 'B'), (2, 'C'), (3, 'D'), (4, 'E')]
-# [(5, 'F'), (6, 'G'), (7, 'H'), (8, 'I'), (9, 'J')]
-# [(10, 'K'), (11, 'L'), (12, 'M'), (13, 'N'), (14, 'O')]
-# [(15, 'P'), (16, 'Q'), (17, 'R'), (18, 'S'), (19, 'T')]
-# [(20, 'U'), (21, 'V'), (22, 'W'), (23, 'X'), (24, 'Y')]
-# [(25, 'Z'), (26, 'a'), (27, 'b'), (28, 'c'), (29, 'd')]
-# [(30, 'e'), (31, 'f'), (32, 'g'), (33, 'h'), (34, 'i')]
-# [(35, 'j'), (36, 'k'), (37, 'l'), (38, 'm'), (39, 'n')]
-# [(40, 'o'), (41, 'p'), (42, 'q'), (43, 'r'), (44, 's')]
-# [(45, 't'), (46, 'u'), (47, 'v'), (48, 'w'), (49, 'x')]
-# [(50, 'y'), (51, 'z'), (52, 'ก'), (53, 'ข'), (54, 'ฃ')]
-# [(55, 'ค'), (56, 'ฅ'), (57, 'ฆ'), (58, 'ง'), (59, 'จ')]
-# [(60, 'ฉ'), (61, 'ช'), (62, 'ซ'), (63, 'ฌ'), (64, 'ญ')]
-# [(65, 'ฎ'), (66, 'ฏ'), (67, 'ฐ'), (68, 'ฑ'), (69, 'ฒ')]
-# [(70, 'ณ'), (71, 'ด'), (72, 'ต'), (73, 'ถ'), (74, 'ท')]
-# [(75, 'ธ'), (76, 'น'), (77, 'บ'), (78, 'ป'), (79, 'ผ')]
-# [(80, 'ฝ'), (81, 'พ'), (82, 'ฟ'), (83, 'ภ'), (84, 'ม')]
-# [(85, 'ย'), (86, 'ร'), (87, 'ล'), (88, 'ว'), (89, 'ศ')]
-# [(90, 'ษ'), (91, 'ส'), (92, 'ห'), (93, 'ฬ'), (94, 'อ')]
-# [(95, 'ฮ')]
+def ttf_uploader(prefix):
+    file = st.file_uploader("TTF, OTF", ["ttf", "otf"], key=f"{prefix}-uploader")
+    if file:    
+        return file
+        
+    return get_ttf(LOADED_TTF_KEY)
 
-import string 
-import pythainlp
+def generate_button(prefix, file_input, version, **kwargs):
 
-thai_digits = [*pythainlp.thai_digits]
-thai_characters = [*pythainlp.thai_consonants]
-eng_characters = [*string.ascii_letters]
-thai_floating = [*pythainlp.thai_vowels]
+    col1, col2 = st.columns(2)
+    with col1:
+        n_samples = st.slider(
+            "Number of inference sample",
+            min_value=1,
+            max_value=200,
+            value=20,
+            key=f"{prefix}-inference-sample",
+        )
+    with col2:
+        ref_char_ids = st.text_area(
+        "ref_char_ids",
+        value="1,2,3,4,5,6,7,8",
+        key=f"{prefix}-ref_char_ids",
+        )
+    enable_attention_slicing = st.checkbox(
+        "Enable attention slicing (enables higher resolutions but is slower)",
+        key=f"{prefix}-attention-slicing",
+    )
+    enable_cpu_offload = st.checkbox(
+        "Enable CPU offload (if you run out of memory, e.g. for XL model)",
+        key=f"{prefix}-cpu-offload",
+        value=False,
+    )
 
-directories = [
-    "inference",
-    "inference/char_set",
-    "inference/font_sfds",
-    "inference/font_ttfs",
-    "inference/vecfont_dataset",
-    "inference/font_ttfs/tha/test",
-    ]
+    if st.button("Generate image", key=f"{prefix}-btn"):
+        with st.spinner("⏳ Generating image..."):
+            image = ttf_to_image(file_input, n_samples, ref_char_ids, version)
+            set_img(OUTPUT_IMG_KEY, image.copy())
+        st.image(image)
 
-    
-# Data Preprocessing
-def preprocessing(ttf_file) -> str:
-    shutil.rmtree("inference") 
-    for directory in directories:
-        os.makedirs(directory, exist_ok=True)
-    shutil.copy(ttf_file, f"{opts.data_path}/font_ttfs/tha/test/0000.ttf")
-    glypts = sorted(set(thai_characters))
-    print("Glypts:",len(glypts))
-    print("".join(glypts))
-    f = open("inference/char_set/tha.txt", "w")
-    f.write("".join(glypts))
-    f.close()
+    test_font = st.text_area(
+        "test font",
+        value="กขคง",
+        key=f"{prefix}-prompt",
+    )
 
-    # Preprocess Pipeline
-    convert_mp(opts)
-    write_glyph_imgs_mp(opts)
-    output_path = os.path.join(opts.output_path, opts.language, opts.split)
-    log_path = os.path.join(opts.sfd_path, opts.language, 'log')
-    if not os.path.exists(output_path):
-        os.makedirs(output_path)
-    if not os.path.exists(log_path):
-        os.makedirs(log_path)
-    create_db(opts, output_path, log_path)
-    relax_rep(opts)
+def generate_tab():
+    prefix = "ttf2img"
+    col1, col2 = st.columns(2)
 
-    print("Finished making a data", ttf_file)
-    print("Saved at", output_path)
-    return output_path
+    with col1:
+        sample_choose = st.selectbox(
+                "Choose Sample", ["Custom"] + [i for i in os.listdir("font_sample/")], key=f"{prefix}-sample_choose"
+            )
+        if sample_choose == "Custom":
+            uploaded_file = ttf_uploader(prefix)
+            if uploaded_file:
+                st.write("filename:", uploaded_file.name)
+                uploaded_file = uploaded_file.getbuffer() # Send file as Buffer
 
-def inference_model():
-    test_main_model(opts)
+        else:
+            st.write("filename:", sample_choose)
+            uploaded_file = os.path.join("font_sample", sample_choose)
 
-def ttf_to_image(ttf_file):
-    try:
-        preprocessing(ttf_file) # Make Data
-        inference_model() # Inference
-    except Exception as e:
-        raise e
-
+    with col2:
+        if uploaded_file:
+            version = st.selectbox(
+                "Model version", ["TH2TH", "ENG2TH"], key=f"{prefix}-version"
+            )
+            generate_button(
+                prefix, file_input=uploaded_file, version=version
+            )
 
 def main():
-    
-    # gr.Interface(
-    #     fn=ttf_to_image, 
-    #     inputs=gr.File(label="TTF File"), 
-    #     outputs=gr.Image(label="Grid of Images"),
-    #     title="TTF to Image Grid",
-    #     description="Upload a TTF file and get a grid of images from the characters in the font.",
-    #     theme="default",
-    # ).launch()
-    print(opts.mode)
-    ttf_to_image("font_sample/SaoChingcha-Regular.otf")
-    
+    st.set_page_config(layout="wide")
+    st.title("ThaiVecFont Playground")
+
+    generate_tab()
+
+    with st.sidebar:
+        st.header("Latest Output Image")
+        output_image = get_img(OUTPUT_IMG_KEY)
+        if output_image:
+            st.image(output_image)
+        else:
+            st.markdown("No output generated yet")
+
+
 if __name__ == "__main__":
     main()

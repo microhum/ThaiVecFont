@@ -7,7 +7,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.optim import Adam, AdamW
 from torchvision.utils import save_image
-from tensorboardX import SummaryWriter
 import wandb
 from dataloader import get_loader
 from models import util_funcs
@@ -53,9 +52,6 @@ def train_main_model(opts):
 
     optimizer = AdamW(parameters_all, lr=opts.lr, betas=(opts.beta1, opts.beta2), eps=opts.eps, weight_decay=opts.weight_decay)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.997)
-    
-    if opts.tboard:
-        writer = SummaryWriter(dir_log)
 
     for epoch in range(opts.init_epoch, opts.n_epochs):
         t0 = time()
@@ -88,21 +84,6 @@ def train_main_model(opts):
             if batches_done % opts.freq_log == 0:
                 logfile_train.write(message + '\n')
                 print(message)
-                if opts.tboard:
-                    # print("Running With Tensorboard")
-                    writer.add_scalar('Loss/loss', loss.item(), batches_done)
-                    loss_img_items = ['l1', 'vggpt']
-                    loss_svg_items = ['total', 'cmd', 'args', 'aux', 'smt']
-                    for item in loss_img_items:
-                        writer.add_scalar(f'Loss/img_{item}', loss_dict['img'][item].item(), batches_done)
-                    for item in loss_svg_items:
-                        writer.add_scalar(f'Loss/svg_{item}', loss_dict['svg'][item].item(), batches_done)
-                    for item in loss_svg_items:
-                        writer.add_scalar(f'Loss/svg_para_{item}', loss_dict['svg_para'][item].item(), batches_done)
-                    writer.add_scalar('Loss/img_kl_loss', opts.kl_beta * loss_dict['kl'].item(), batches_done)
-                    writer.add_text('text/ref_img', str(ret_dict['img']['ref'][0]), batches_done)
-                    writer.add_image('Images/trg_img', ret_dict['img']['trg'][0], batches_done)
-                    writer.add_image('Images/img_output', ret_dict['img']['out'][0], batches_done)
 
                 if opts.wandb:
                     # print("Running With Wandb")
@@ -156,10 +137,6 @@ def train_main_model(opts):
                         for key, _ in loss_val[loss_cat].items():
                             loss_val[loss_cat][key] /= len(val_loader) 
 
-                    if opts.tboard:
-                        for loss_cat in ['img', 'svg']:
-                            for key, _ in loss_val[loss_cat].items():
-                                writer.add_scalar(f'VAL/loss_{loss_cat}_{key}', loss_val[loss_cat][key], batches_done)
                     if opts.wandb:
                         for loss_cat in ['img', 'svg']:
                             # Iterate over keys and values in the loss dictionary

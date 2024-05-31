@@ -10,8 +10,12 @@ from options import get_parser_main_model
 from data_utils.svg_utils import render
 from models.util_funcs import svg2img, cal_iou
 from tqdm import tqdm
+from PIL import Image
 
 def test_main_model(opts):
+    if opts.streamlit:
+        import streamlit as st
+
     if opts.dir_res:
         os.mkdir(os.path.join(opts.dir_res, "results"))
         dir_res = os.path.join(opts.dir_res, "results")
@@ -23,12 +27,13 @@ def test_main_model(opts):
         device = torch.device("cuda")
     else:
         device = torch.device("cpu")
+    if opts.streamlit:
+        st.write("Loading Model Weight...")
     model_main = ModelMain(opts)
     path_ckpt = os.path.join(f"{opts.model_path}")
     model_main.load_state_dict(torch.load(path_ckpt)['model'])
     model_main.to(device)
     model_main.eval()
-
     with torch.no_grad():
         
         for test_idx, test_data in enumerate(test_loader):
@@ -51,6 +56,7 @@ def test_main_model(opts):
             syn_svg_merge_f = open(os.path.join(svg_merge_dir, f"{opts.name_ckpt}_syn_merge_{test_idx}.html"), 'w') 
     
             for sample_idx in tqdm(range(opts.n_samples)):
+                
                 ret_dict_test, loss_dict_test = model_main(test_data, mode='test')
 
                 svg_sampled = ret_dict_test['svg']['sampled_1']
@@ -63,6 +69,10 @@ def test_main_model(opts):
                 img_sample_merge = torch.cat((img_trg.data, img_output.data), -2)
                 save_file_merge = os.path.join(dir_save, "imgs", f"merge_{opts.img_size}.png")
                 save_image(img_sample_merge, save_file_merge, nrow=8, normalize=True)    
+                if opts.streamlit:
+                    st.progress((sample_idx+1)/opts.n_samples, f"Generating Font Sample {sample_idx+1} Please wait...")
+                    im = Image.open(save_file_merge)
+                    st.image(im, caption='img_sample_merge')
 
                 for char_idx in range(opts.char_num):
                     img_gt = (1.0 - img_trg[char_idx,...]).data
@@ -138,6 +148,8 @@ def test_main_model(opts):
                     syn_svg_merge_f.write('<br>')
 
             syn_svg_merge_f.close()
+
+        return im
 
 def main():
     

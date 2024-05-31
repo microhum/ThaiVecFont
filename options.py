@@ -52,7 +52,6 @@ def get_parser_main_model():
     parser.add_argument('--beta2', type=float, default=0.999, help='beta2 of Adam optimizer')
     parser.add_argument('--eps', type=float, default=1e-8, help='Adam epsilon')
     parser.add_argument('--weight_decay', type=float, default=0.0, help='weight decay')
-    parser.add_argument('--tboard', type=bool, default=True, help='whether use tensorboard to visulize loss')
     parser.add_argument('--wandb', type=bool, default=True, help='whether use wandb to visulize loss')
     parser.add_argument('--wandb_project_name', type=str, default="DeepVecFontV2", help='wandb project name')
 
