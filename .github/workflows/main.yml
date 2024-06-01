@@ -16,7 +16,7 @@ jobs:
       - name: Add remote 
         env:
           HF: ${{ secrets.HF_TOKEN }}
-        run: git remote set-url space git@hf.co:spaces/microhum/DeepVecFont-TH
+        run: git remote set-url origin git@hf.co:spaces/microhum/DeepVecFont-TH
       - name: Push to hub
         env:
           HF: ${{ secrets.HF_TOKEN }}
