@@ -35,7 +35,6 @@ def train_main_model(opts):
     val_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size_val, 'val')
 
     run = wandb.init(project=opts.wandb_project_name, config=opts) # initialize wandb project
-    text_table = wandb.Table(columns=["epoch", "loss", "ref"])
 
     model_main = ModelMain(opts)
     if torch.cuda.is_available() and opts.multi_gpu:
@@ -107,12 +106,7 @@ def train_main_model(opts):
                         'Images/trg_img': wandb.Image(ret_dict['img']['trg'][0], caption="Target"),
                         'Images/img_output': wandb.Image(ret_dict['img']['out'][0], caption="Output")
                     }, step=batches_done)
-
-                    text_table.add_data(epoch, loss, str(ret_dict['img']['ref'][0])) 
-                    wandb.log({"training_samples" : text_table})
                     
-
-
             if opts.freq_sample > 0 and batches_done % opts.freq_sample == 0:
                 
                 img_sample = torch.cat((ret_dict['img']['trg'].data, ret_dict['img']['out'].data), -2)
