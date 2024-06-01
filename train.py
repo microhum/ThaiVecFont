@@ -143,6 +143,11 @@ def train_main_model(opts):
                             for key, value in loss_val[loss_cat].items():
                                 # Log loss value to WandB
                                 wandb.log({f'VAL/loss_{loss_cat}_{key}': value})
+                        wandb.log({
+                        'Images/val_trg_img': wandb.Image(ret_dict_val['img']['trg'][0], caption="Val Target"),
+                        'Images/val_img_output': wandb.Image(ret_dict_val['img']['out'][0], caption="Val Output")
+                        }, step=batches_done)
+
                         
                     val_msg = (
                         f"Epoch: {epoch}/{opts.n_epochs}, Batch: {idx}/{len(train_loader)}, "
