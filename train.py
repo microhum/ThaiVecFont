@@ -46,7 +46,7 @@ def train_main_model(opts):
     if torch.cuda.is_available() and opts.multi_gpu:
         model_main = torch.nn.DataParallel(model_main)
     
-    
+    # For Continue Training
     if opts.continue_training:
         checkpoint = torch.load(opts.continue_ckpt)
         model_main.load_state_dict(checkpoint['model'])
@@ -59,7 +59,7 @@ def train_main_model(opts):
         t0 = time()
         for idx, data in enumerate(train_loader):
             for key in data: data[key] = data[key].cuda()
-            ret_dict, loss_dict = model_main(data)
+            ret_dict, loss_dict = model_main(data.cuda())
 
             loss = opts.loss_w_l1 * loss_dict['img']['l1'] + opts.loss_w_pt_c * loss_dict['img']['vggpt'] + opts.kl_beta * loss_dict['kl'] \
                     + loss_dict['svg']['total'] + loss_dict['svg_para']['total']
