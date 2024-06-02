@@ -37,6 +37,8 @@ def train_main_model(opts):
     run = wandb.init(project=opts.wandb_project_name, config=opts) # initialize wandb project
 
     model_main = ModelMain(opts)
+    model_main.cuda()
+    
     parameters_all = [{"params": model_main.img_encoder.parameters()}, {"params": model_main.img_decoder.parameters()},
                             {"params": model_main.modality_fusion.parameters()}, {"params": model_main.transformer_main.parameters()},
                             {"params": model_main.transformer_seqdec.parameters()}]
@@ -53,13 +55,13 @@ def train_main_model(opts):
         optimizer.load_state_dict(checkpoint['opt'])    
     
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.997)
-    model_main.cuda()
+    
 
     for epoch in range(opts.init_epoch, opts.n_epochs):
         t0 = time()
         for idx, data in enumerate(train_loader):
             for key in data: data[key] = data[key].cuda()
-            ret_dict, loss_dict = model_main(data.cuda())
+            ret_dict, loss_dict = model_main(data)
 
             loss = opts.loss_w_l1 * loss_dict['img']['l1'] + opts.loss_w_pt_c * loss_dict['img']['vggpt'] + opts.kl_beta * loss_dict['kl'] \
                     + loss_dict['svg']['total'] + loss_dict['svg_para']['total']
