@@ -138,9 +138,9 @@ def train_main_model(opts):
                                 # Log loss value to WandB
                                 wandb.log({f'VAL/loss_{loss_cat}_{key}': value})
                         wandb.log({
-                        'Images/val_trg_img': wandb.Image(ret_dict_val['img']['trg'][0], caption="Val Target"),
-                        'Images/val_img_output': wandb.Image(ret_dict_val['img']['out'][0], caption="Val Output")
-                        }, step=batches_done)
+                        'VAL_Images/val_trg_img': wandb.Image(ret_dict_val['img']['trg'][0], caption="Val Target"),
+                        'VAL_Images/val_img_output': wandb.Image(ret_dict_val['img']['out'][0], caption="Val Output")
+                        })
 
                         
                     val_msg = (

@@ -6,6 +6,7 @@ inference
 inference_model
 Font_dataset
 venv
+.devcontainer
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

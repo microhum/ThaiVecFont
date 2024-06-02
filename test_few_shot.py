@@ -23,15 +23,16 @@ def test_main_model(opts):
         dir_res = os.path.join(f"{opts.exp_path}", "experiments/", opts.name_exp, "results")
 
     test_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size, 'test')
-    if torch.cuda.is_available():
-        device = torch.device("cuda")
-    else:
-        device = torch.device("cpu")
+    
     if opts.streamlit:
         st.write("Loading Model Weight...")
     model_main = ModelMain(opts)
     path_ckpt = os.path.join(f"{opts.model_path}")
-    model_main.load_state_dict(torch.load(path_ckpt)['model'])
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu")
+    model_main.load_state_dict(torch.load(path_ckpt)['model'], map_location=torch.device('cpu'))
     model_main.to(device)
     model_main.eval()
     with torch.no_grad():
