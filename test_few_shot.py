@@ -32,7 +32,7 @@ def test_main_model(opts):
         device = torch.device("cuda")
     else:
         device = torch.device("cpu")
-    model_main.load_state_dict(torch.load(path_ckpt)['model'], map_location=torch.device('cpu'))
+    model_main.load_state_dict(torch.load(path_ckpt)['model'])
     model_main.to(device)
     model_main.eval()
     with torch.no_grad():

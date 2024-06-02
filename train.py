@@ -37,20 +37,23 @@ def train_main_model(opts):
     run = wandb.init(project=opts.wandb_project_name, config=opts) # initialize wandb project
 
     model_main = ModelMain(opts)
-    if torch.cuda.is_available() and opts.multi_gpu:
-        model_main = torch.nn.DataParallel(model_main)
-        
-    if opts.continue_training:
-        model_main.load_state_dict(torch.load(opts.continue_ckpt)['model'])
-    
-    model_main.cuda()
-
     parameters_all = [{"params": model_main.img_encoder.parameters()}, {"params": model_main.img_decoder.parameters()},
                             {"params": model_main.modality_fusion.parameters()}, {"params": model_main.transformer_main.parameters()},
                             {"params": model_main.transformer_seqdec.parameters()}]
 
     optimizer = AdamW(parameters_all, lr=opts.lr, betas=(opts.beta1, opts.beta2), eps=opts.eps, weight_decay=opts.weight_decay)
+
+    if torch.cuda.is_available() and opts.multi_gpu:
+        model_main = torch.nn.DataParallel(model_main)
+    
+    
+    if opts.continue_training:
+        checkpoint = torch.load(opts.continue_ckpt)
+        model_main.load_state_dict(checkpoint['model'])
+        optimizer.load_state_dict(checkpoint['opt'])    
+    
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.997)
+    model_main.cuda()
 
     for epoch in range(opts.init_epoch, opts.n_epochs):
         t0 = time()
