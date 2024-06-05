@@ -196,7 +196,7 @@ class Transformer_decoder(nn.Module):
         self.decoder_layers_parallel = clones(DecoderLayer(512, c(attn), c(attn), c(ff), dropout=0.0), 1)
         self.decoder_norm_parallel = nn.LayerNorm(512)
         if opts.ref_nshot == 52:
-            self.cls_embedding = nn.Embedding(92,512)
+            self.cls_embedding = nn.Embedding(96,512)
         else:
             self.cls_embedding = nn.Embedding(52,512)
         self.cls_token = nn.Parameter(torch.zeros(1, 1, 512))
