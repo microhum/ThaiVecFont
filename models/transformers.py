@@ -227,7 +227,7 @@ class Transformer_decoder(nn.Module):
                                        [1, 1, 0., 0., 0., 0., 1., 1.],
                                        [1, 1, 0., 0., 0., 0., 1., 1.],
                                        [1, 1, 1., 1., 1., 1., 1., 1.]]).to(cmd_logits.device)  
-        if opts.mode == 'train':
+        if opts.mode == {'train', 'val'}:
             cmd2 = torch.argmax(cmd_logits, -1).unsqueeze(-1).transpose(0, 1) 
             arg2 = torch.argmax(args_logits, -1).transpose(0, 1)
 
