@@ -19,11 +19,11 @@ def test_main_model(opts):
     path_ckpt = os.path.join(f"{opts.model_path}")
     model_main.load_state_dict(torch.load(path_ckpt)['model'])
     model_main.cuda()
-    model_main.eval() # Testing mode
-
+    
     with torch.no_grad():
+        model_main.eval()
         loss_val = {'img':{'l1':0.0, 'vggpt':0.0}, 'svg':{'total':0.0, 'cmd':0.0, 'args':0.0, 'aux':0.0},
-                                'svg_para':{'total':0.0, 'cmd':0.0, 'args':0.0, 'aux':0.0}}
+                    'svg_para':{'total':0.0, 'cmd':0.0, 'args':0.0, 'aux':0.0}}
         
         for val_idx, val_data in enumerate(test_loader):
             for key in val_data: val_data[key] = val_data[key].cuda()
@@ -36,6 +36,7 @@ def test_main_model(opts):
             for key, _ in loss_val[loss_cat].items():
                 loss_val[loss_cat][key] /= len(test_loader) 
 
+            
         val_msg = (
             f"Val loss img l1: {loss_val['img']['l1']: .6f}, "
             f"Val loss img pt: {loss_val['img']['vggpt']: .6f}, "
@@ -44,8 +45,6 @@ def test_main_model(opts):
             f"Val loss args: {loss_val['svg']['args']: .6f}, "
         )
 
-        print(val_msg)
-        print(f"l1: {loss_val['img']['l1']: .6f}, pt: {loss_val['img']['vggpt']: .6f}")
 
 def main():
     
