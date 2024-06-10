@@ -3,6 +3,7 @@ import torch
 from dataloader import get_loader
 from models.model_main import ModelMain
 from options import get_parser_main_model
+from torch.optim import Adam, AdamW
 
 # Testing (Only accuracy)
 
@@ -13,14 +14,22 @@ def test_main_model(opts):
 
     model_main = ModelMain(opts).to(device)
     path_ckpt = os.path.join(opts.model_path)
+    parameters_all = [{"params": model_main.img_encoder.parameters()}, {"params": model_main.img_decoder.parameters()},
+                            {"params": model_main.modality_fusion.parameters()}, {"params": model_main.transformer_main.parameters()},
+                            {"params": model_main.transformer_seqdec.parameters()}]
+
+    optimizer = AdamW(parameters_all, lr=opts.lr, betas=(opts.beta1, opts.beta2), eps=opts.eps, weight_decay=opts.weight_decay)
     
     # Check if checkpoint path is correct and the file exists
     if not os.path.isfile(path_ckpt):
         raise FileNotFoundError(f"Checkpoint file not found at {path_ckpt}")
-
+    
     checkpoint = torch.load(path_ckpt, map_location=device)
     model_main.load_state_dict(checkpoint['model'])
-
+    optimizer.load_state_dict(checkpoint['opt'])    
+    model_main.load_state_dict(checkpoint['model'])
+    optimizer.zero_grad()
+    optimizer.step()
     with torch.no_grad():
         model_main.eval()
         loss_val = {'img':{'l1':0.0, 'vggpt':0.0}, 'svg':{'total':0.0, 'cmd':0.0, 'args':0.0, 'aux':0.0}}
