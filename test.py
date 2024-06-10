@@ -9,10 +9,7 @@ from options import get_parser_main_model
 def test_main_model(opts):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
-    test_loader = get_loader(
-        opts.data_root, opts.img_size, opts.language, opts.char_num, 
-        opts.max_seq_len, opts.dim_seq, opts.batch_size_val, opts.mode
-    )
+    val_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size_val, 'val')
 
     model_main = ModelMain(opts).to(device)
     path_ckpt = os.path.join(opts.model_path)
@@ -28,7 +25,7 @@ def test_main_model(opts):
         model_main.eval()
         loss_val = {'img':{'l1':0.0, 'vggpt':0.0}, 'svg':{'total':0.0, 'cmd':0.0, 'args':0.0, 'aux':0.0}}
 
-        for val_idx, val_data in enumerate(test_loader):
+        for val_idx, val_data in enumerate(val_loader):
             for key in val_data:
                 val_data[key] = val_data[key].to(device)
             
@@ -40,7 +37,7 @@ def test_main_model(opts):
 
         for loss_cat in ['img', 'svg']:
             for key in loss_val[loss_cat]:
-                loss_val[loss_cat][key] /= len(test_loader)
+                loss_val[loss_cat][key] /= len(val_loader)
 
         val_msg = (
             f"Val loss img l1: {loss_val['img']['l1']: .6f}, "
