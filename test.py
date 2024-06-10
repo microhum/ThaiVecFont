@@ -13,7 +13,7 @@ from models.util_funcs import svg2img, cal_iou
 # Testing (Only accuracy)
 
 def test_main_model(opts):
-    test_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size, 'test')
+    test_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size, opts.mode)
 
     model_main = ModelMain(opts)
     path_ckpt = os.path.join(f"{opts.model_path}")
