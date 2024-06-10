@@ -11,7 +11,7 @@ warnings.filterwarnings("ignore")
 def test_main_model(opts):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
-    val_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size_val, 'val')
+    val_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size_val, 'test')
 
     model_main = ModelMain(opts).to(device)
     path_ckpt = os.path.join(opts.model_path)
