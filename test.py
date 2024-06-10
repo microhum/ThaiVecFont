@@ -30,8 +30,6 @@ def test_main_model(opts):
     train_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size, opts.mode)
     val_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size_val, 'val')
 
-    run = wandb.init(project=opts.wandb_project_name, config=opts) # initialize wandb project
-
     model_main = ModelMain(opts)
     model_main.cuda()
     
