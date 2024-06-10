@@ -13,8 +13,6 @@ from tqdm import tqdm
 from PIL import Image
 
 def test_main_model(opts):
-    if opts.streamlit:
-        import streamlit as st
 
     if opts.dir_res:
         os.mkdir(os.path.join(opts.dir_res, "results"))
@@ -23,9 +21,7 @@ def test_main_model(opts):
         dir_res = os.path.join(f"{opts.exp_path}", "experiments/", opts.name_exp, "results")
 
     test_loader = get_loader(opts.data_root, opts.img_size, opts.language, opts.char_num, opts.max_seq_len, opts.dim_seq, opts.batch_size, 'test')
-    
-    if opts.streamlit:
-        st.write("Loading Model Weight...")
+
     model_main = ModelMain(opts)
     path_ckpt = os.path.join(f"{opts.model_path}")
     if torch.cuda.is_available():
@@ -70,10 +66,6 @@ def test_main_model(opts):
                 img_sample_merge = torch.cat((img_trg.data, img_output.data), -2)
                 save_file_merge = os.path.join(dir_save, "imgs", f"merge_{opts.img_size}.png")
                 save_image(img_sample_merge, save_file_merge, nrow=8, normalize=True)    
-                if opts.streamlit:
-                    st.progress((sample_idx+1)/opts.n_samples, f"Generating Font Sample {sample_idx+1} Please wait...")
-                    im = Image.open(save_file_merge)
-                    st.image(im, caption='img_sample_merge')
 
                 for char_idx in range(opts.char_num):
                     img_gt = (1.0 - img_trg[char_idx,...]).data
@@ -149,11 +141,8 @@ def test_main_model(opts):
                     syn_svg_merge_f.write('<br>')
 
             syn_svg_merge_f.close()
-
-        return im
-
+            
 def main():
-    
     opts = get_parser_main_model().parse_args()
     opts.name_exp = opts.name_exp + '_' + opts.model_name
     experiment_dir = os.path.join(f"{opts.exp_path}","experiments", opts.name_exp)

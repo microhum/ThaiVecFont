@@ -153,7 +153,9 @@ class ModelMain(nn.Module):
         if mode == 'train':
             ref_cls = torch.randint(0, self.opts.char_num, (input_image.size(0), self.opts.ref_nshot)).cuda()
             if opts.ref_nshot == 52: # For ENG to TH
-                ref_cls = torch.randint(0, 52, (input_image.size(0), self.opts.ref_nshot)).cuda()
+                ref_cls_upper = torch.randint(0, 52, (input_image.size(0), self.opts.ref_nshot // 2)).cuda()
+                ref_cls_lower = torch.randint(26, 52, (input_image.size(0), self.opts.ref_nshot // 2)).cuda()
+                ref_cls = torch.cat((ref_cls_upper, ref_cls_lower), -1)
         elif mode == 'val':
             ref_cls = torch.arange(0, self.opts.ref_nshot, 1).cuda().unsqueeze(0).expand(input_image.size(0), -1)
         else:
