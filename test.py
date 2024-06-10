@@ -3,6 +3,8 @@ import torch
 from dataloader import get_loader
 from models.model_main import ModelMain
 from options import get_parser_main_model
+import warnings
+warnings.filterwarnings("ignore")
 
 # Testing (Only accuracy)
 
