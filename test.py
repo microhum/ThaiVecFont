@@ -38,7 +38,7 @@ def test_main_model(opts):
             for key in val_data:
                 val_data[key] = val_data[key].to(device)
             
-            ret_dict_val, loss_dict_val = model_main(val_data, mode='train')
+            ret_dict_val, loss_dict_val = model_main(val_data, mode='val')
             
             for loss_cat in ['img', 'svg']:
                 for key in loss_val[loss_cat]:
