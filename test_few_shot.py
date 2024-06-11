@@ -43,6 +43,7 @@ def test_main_model(opts):
                 os.mkdir(dir_save)
                 os.mkdir(os.path.join(dir_save, "imgs"))
                 os.mkdir(os.path.join(dir_save, "svgs_single"))
+                os.mkdir(os.path.join(dir_save, "svgs_single_best"))
                 os.mkdir(os.path.join(dir_save, "svgs_merge"))
             svg_merge_dir = os.path.join(dir_save, "svgs_merge")
 
@@ -98,7 +99,9 @@ def test_main_model(opts):
                 svg_dec_out = sampled_svg_2.clone().detach()
                 for i, one_seq in enumerate(svg_dec_out):
                     syn_svg_outfile = os.path.join(os.path.join(dir_save, "svgs_single"), f"syn_{i:02d}_{sample_idx}_refined.svg")
+                    
 
+                    
                     syn_svg_f = open(syn_svg_outfile, 'w')
                     try:
                         svg = render(one_seq.cpu().numpy())
@@ -121,6 +124,8 @@ def test_main_model(opts):
             for i in range(opts.char_num):
                 print(f"Font {i:02d} Best Sample:", idx_best_sample[i])
                 syn_svg_outfile_best = os.path.join(os.path.join(dir_save, "svgs_single"), f"syn_{i:02d}_{int(idx_best_sample[i])}_refined.svg")
+                svg_best_file = open(os.path.join(os.path.join(dir_save, "svgs_single_best"), f"syn_{i:02d}_{sample_idx}_refined.svg"), "w")
+                svg_best_file.write(open(syn_svg_outfile_best, 'r').read())
                 syn_svg_merge_f.write(open(syn_svg_outfile_best, 'r').read())
                 if i > 0 and i % 13 == 12:
                     syn_svg_merge_f.write('<br>')
