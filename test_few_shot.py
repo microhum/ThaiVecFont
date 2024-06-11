@@ -119,7 +119,7 @@ def test_main_model(opts):
                         idx_best_sample[i] = sample_idx
 
             for i in range(opts.char_num):
-                # print(idx_best_sample[i])
+                print(f"Font {i:02d} Best Sample:", idx_best_sample[i])
                 syn_svg_outfile_best = os.path.join(os.path.join(dir_save, "svgs_single"), f"syn_{i:02d}_{int(idx_best_sample[i])}_refined.svg")
                 syn_svg_merge_f.write(open(syn_svg_outfile_best, 'r').read())
                 if i > 0 and i % 13 == 12:
