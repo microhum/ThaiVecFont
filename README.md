@@ -1,10 +1,10 @@
 # ThaiVecFont
 
-This is the official pytorch implementation of:
+This is the implementation of:
 
 [DeepVecFont-v2: Exploiting Transformers to Synthesize Vector Fonts with Higher Quality. CVPR 2023.](https://arxiv.org/abs/2303.14585) 
 
-In Thai Font Version
+In Thai Font Version for proving concepts of Thai Vector Fonts Generation.
 
 <img src="statics/glyphs_writing.gif" width="720">
 <img src="statics/preview_crop_labeled.jpg" width="720">
@@ -16,7 +16,7 @@ In Thai Font Version
 
 These Thai Fonts dataset are collected by ThaiFaces from many sources like Google Fonts, F0nt.com, Fontcraft.com, etc., and other individual personal designers. Many fonts have a non-commercial license.
 
-My work is for educational purposes. You can ONLY use this dataset for non-commercial purposes and CANNOT use this dataset and pretrained model for any commercial purposes. Using this dataset for commercial purposes may violate the principles of intellectual property.
+ThaiVecFont project is for educational purposes. You can ONLY use this dataset for non-commercial purposes and CANNOT use this dataset and pretrained model for any commercial purposes. Using this dataset for commercial purposes may violate the principles of intellectual property.
 
 ### Blog
 You can read about this work here in this blog, where I explained about my project progression.
