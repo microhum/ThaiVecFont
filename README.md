@@ -10,7 +10,7 @@ In Thai Font Version for proving concepts of Thai Vector Fonts Generation.
 <img src="statics/preview_crop_labeled.jpg" width="720">
 
 
-### Font Dataset
+### Font Dataset (For Non-Commercial Only)
 - **[Preprocessed Dataset (THA)](https://drive.google.com/file/d/1-JuWkDZprqp-TzTwx3xf33nKccI-prpp/view?usp=sharing)**
 - **[TTF Fonts](https://drive.google.com/file/d/1UigG2bWRfAv2VelN8uwjw6FQMteXtLv5/view?usp=sharing)**
 
